@@ -1,74 +1,55 @@
 {% load static %}
-<div class="flex items-center gap-3 px-4 h-16 border-b border-gray-200">
-  <a href="/" class="flex items-center gap-3">
-    <img src="{% static 'images/forge_lore_logo_only.png' %}" alt="ForgeLore" class="h-8 w-8">
-    <span class="font-semibold tracking-tight">ForgeLore</span>
-  </a>
-  <span class="ml-auto text-[10px] uppercase tracking-wider text-gray-500">v0.1</span>
-  </div>
-
-<nav class="flex-1 overflow-y-auto py-4">
-  <div class="px-3">
-    <p class="px-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Workspace</p>
-    <ul class="mt-2 space-y-1">
-      <li>
-        <a href="/dashboard/" class="group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
-          <!-- Icon: Home -->
-          <svg class="h-5 w-5 text-gray-400 group-hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10.707 1.293a1 1 0 00-1.414 0l-8 8a1 1 0 001.414 1.414L3 10.414V17a1 1 0 001 1h3a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h3a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-8-8z"/></svg>
-          <span>Overview</span>
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'literature_search' %}" class="group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
-          <!-- Icon: Book Open -->
-          <svg class="h-5 w-5 text-gray-400 group-hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M2 4a2 2 0 012-2h4a2 2 0 012 2v12a2 2 0 00-2-2H4a2 2 0 00-2 2V4zm10 0a2 2 0 012-2h4a2 2 0 012 2v12a2 2 0 00-2-2h-4a2 2 0 00-2 2V4z"/></svg>
-          <span>Literature</span>
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'experiments_list' %}" class="group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
-          <!-- Icon: Beaker -->
-          <svg class="h-5 w-5 text-gray-400 group-hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4 3a1 1 0 011-1h10a1 1 0 110 2h-1v3.382l3.447 6.894A2 2 0 0115.763 17H4.237a2 2 0 01-1.684-2.724L6 7.382V4H5a1 1 0 01-1-1zm8 1H8v3.618l-3.553 7.106a.5.5 0 00.447.276h11.212a.5.5 0 00.447-.724L12 7.618V4z" clip-rule="evenodd"/></svg>
-          <span>Experiments</span>
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'projects_list' %}" class="group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
-          <!-- Icon: Folder -->
-          <svg class="h-5 w-5 text-gray-400 group-hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M2 6a2 2 0 012-2h3.5a1 1 0 01.8.4l1.5 2A1 1 0 0011.5 7H16a2 2 0 012 2v5a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/></svg>
-          <span>Projects</span>
-        </a>
-      </li>
-    </ul>
-  </div>
-
-  <div class="mt-6 px-3">
-    <p class="px-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Administration</p>
-    <ul class="mt-2 space-y-1">
-      <li>
-        <a href="{% url 'admin:index' %}" class="group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
-          <!-- Icon: Database -->
-          <svg class="h-5 w-5 text-gray-400 group-hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/></svg>
-          <span>Admin</span>
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'settings' %}" class="group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
-          <!-- Icon: Cog -->
-          <svg class="h-5 w-5 text-gray-400 group-hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M11.983 1.882a1 1 0 00-1.966 0l-.138 1.104a6.967 6.967 0 00-1.486.615l-.957-.69a1 1 0 00-1.414 1.414l.69.957c-.246.47-.458.965-.615 1.486l-1.104.138a1 1 0 000 1.966l1.104.138c.157.521.369 1.016.615 1.486l-.69.957a1 1 0 101.414 1.414l.957-.69c.47.246.965.458 1.486.615l.138 1.104a1 1 0 001.966 0l.138-1.104c.521-.157 1.016-.369 1.486-.615l.957.69a1 1 0 001.414-1.414l-.69-.957c.246-.47.458-.965.615-1.486l1.104-.138a1 1 0 000-1.966l-1.104-.138a6.967 6.967 0 00-.615-1.486l.69-.957a1 1 0 00-1.414-1.414l-.957.69a6.967 6.967 0 00-1.486-.615l-.138-1.104zM10 13a3 3 0 110-6 3 3 0 010 6z" clip-rule="evenodd"/></svg>
-          <span>Settings</span>
-        </a>
-      </li>
-    </ul>
-  </div>
-</nav>
-
-<div class="border-t border-gray-200 p-4 text-xs text-gray-500">
-  <p>Signed in</p>
-  <form method="post" action="{% url 'logout' %}">
-    {% csrf_token %}
-    <button type="submit" class="mt-2 inline-flex items-center rounded-md border border-gray-300 px-3 py-1.5 font-medium hover:bg-gray-50">Sign out</button>
-  </form>
+<div class="px-4 h-12 flex items-center border-b border-[#e5e5e5]">
+  <a href="/" class="font-display text-base font-semibold text-[#1a1a1a]">Lumen</a>
 </div>
 
+<nav class="flex-1 overflow-y-auto py-4 px-3">
+  <div class="px-2 mb-2 text-[10px] text-[#6b7280] uppercase tracking-widest font-medium">Research</div>
+  <ul class="space-y-0.5">
+    <li>
+      <a href="/dashboard/" class="flex items-center rounded-md px-2 py-1.5 text-sm {% if request.path == '/dashboard/' %}font-medium text-[#1a1a1a] bg-[#f0efec]{% else %}text-[#6b7280] hover:bg-[#f0efec] hover:text-[#1a1a1a]{% endif %} transition-colors">
+        Overview
+      </a>
+    </li>
+    <li>
+      <a href="{% url 'projects_list' %}" class="flex items-center rounded-md px-2 py-1.5 text-sm {% if '/projects' in request.path %}font-medium text-[#1a1a1a] bg-[#f0efec]{% else %}text-[#6b7280] hover:bg-[#f0efec] hover:text-[#1a1a1a]{% endif %} transition-colors">
+        Projects
+      </a>
+    </li>
+    <li>
+      <a href="{% url 'literature_search' %}" class="flex items-center rounded-md px-2 py-1.5 text-sm {% if '/literature' in request.path %}font-medium text-[#1a1a1a] bg-[#f0efec]{% else %}text-[#6b7280] hover:bg-[#f0efec] hover:text-[#1a1a1a]{% endif %} transition-colors">
+        Literature
+      </a>
+    </li>
+    <li>
+      <a href="{% url 'experiments_list' %}" class="flex items-center rounded-md px-2 py-1.5 text-sm {% if '/experiments' in request.path %}font-medium text-[#1a1a1a] bg-[#f0efec]{% else %}text-[#6b7280] hover:bg-[#f0efec] hover:text-[#1a1a1a]{% endif %} transition-colors">
+        Experiments
+      </a>
+    </li>
+  </ul>
 
+  <div class="my-4 mx-2">
+    <div class="h-px bg-[#e5e5e5]"></div>
+  </div>
+
+  <div class="px-2 mb-2 text-[10px] text-[#6b7280] uppercase tracking-widest font-medium">Account</div>
+  <ul class="space-y-0.5">
+    <li>
+      <a href="{% url 'settings' %}" class="flex items-center rounded-md px-2 py-1.5 text-sm {% if '/settings' in request.path %}font-medium text-[#1a1a1a] bg-[#f0efec]{% else %}text-[#6b7280] hover:bg-[#f0efec] hover:text-[#1a1a1a]{% endif %} transition-colors">
+        Settings
+      </a>
+    </li>
+  </ul>
+</nav>
+
+<div class="border-t border-[#e5e5e5] px-4 py-3">
+  <div class="flex items-center justify-between">
+    <span class="text-xs text-[#6b7280] truncate">{{ user.email|default:user.username }}</span>
+    <form method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit" class="text-xs text-[#6b7280] hover:text-[#1a1a1a] transition">
+        Sign out
+      </button>
+    </form>
+  </div>
+</div>

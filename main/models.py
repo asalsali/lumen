@@ -223,6 +223,25 @@ class Simulation(TimestampedModel):
         return run_simulation(self, timeout_seconds=timeout_seconds)
 
 
+class SimulationRun(TimestampedModel):
+    """Individual execution of a Simulation. Tracks run history."""
+    simulation = models.ForeignKey(Simulation, on_delete=models.CASCADE, related_name="runs")
+    parameters = models.JSONField(blank=True, null=True, help_text="Parameters used for this specific run")
+    status = models.CharField(max_length=20, choices=SimulationStatus.choices, default=SimulationStatus.PENDING)
+    started_at = models.DateTimeField(blank=True, null=True)
+    finished_at = models.DateTimeField(blank=True, null=True)
+    exit_code = models.IntegerField(blank=True, null=True)
+    stdout = models.TextField(blank=True)
+    stderr = models.TextField(blank=True)
+    result_json = models.JSONField(blank=True, null=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Run #{self.pk} of {self.simulation.name} ({self.status})"
+
+
 def attachment_upload_path(instance: "Attachment", filename: str) -> str:
     return f"attachments/{filename}"
 
@@ -302,3 +321,74 @@ class AutomationTask(TimestampedModel):
 
     def __str__(self) -> str:
         return f"AutomationTask[{self.name}] ({self.status})"
+
+
+class ChatMessage(models.Model):
+    """Persisted assistant chat conversation message."""
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="chat_messages")
+    role = models.CharField(max_length=20)  # "user" or "assistant"
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f"ChatMessage({self.role}) in {self.project.name}"
+
+
+class MemberRole(models.TextChoices):
+    OWNER = "owner", "Owner"
+    EDITOR = "editor", "Editor"
+    VIEWER = "viewer", "Viewer"
+
+
+class ProjectMember(models.Model):
+    """Collaborative project membership."""
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="members")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    role = models.CharField(max_length=20, choices=MemberRole.choices, default=MemberRole.EDITOR)
+    invited_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("project", "user")
+
+    def __str__(self) -> str:
+        return f"{self.user} -> {self.project.name} ({self.role})"
+
+
+class ProjectTemplate(models.Model):
+    """Reusable project template."""
+
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    abstract_template = models.TextField(blank=True, help_text="Default abstract text")
+    tags = models.CharField(max_length=500, blank=True)
+    is_public = models.BooleanField(default=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class StepType(models.TextChoices):
+    TOOL_CALL = "tool_call", "Tool Call"
+    TOOL_RESULT = "tool_result", "Tool Result"
+    THINKING = "thinking", "Thinking"
+    OUTPUT = "output", "Output"
+
+
+class AgentStep(models.Model):
+    """Individual step within an AutomationTask for agent visualization."""
+
+    task = models.ForeignKey(AutomationTask, on_delete=models.CASCADE, related_name="steps")
+    step_type = models.CharField(max_length=20, choices=StepType.choices)
+    tool_name = models.CharField(max_length=100, blank=True)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self) -> str:
+        return f"AgentStep({self.step_type}) for {self.task.name}"

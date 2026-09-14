@@ -51,6 +51,8 @@ class SearchResults(BaseModel):
 class LiteratureMeta(BaseModel):
     id: int
     title: str
+    authors: str = ""
+    journal_or_publisher: str = ""
     year: Optional[int] = None
     doi: Optional[str] = None
     arxiv_id: Optional[str] = None
@@ -60,7 +62,7 @@ class LiteratureMeta(BaseModel):
 
 class LiteratureReadRequest(BaseModel):
     literature_id: int
-    max_chars: int = Field(default=6000, ge=100, le=200000)
+    max_chars: int = Field(default=30000, ge=100, le=200000)
     include_abstract: bool = True
 
 
@@ -135,6 +137,8 @@ class HypothesisModel(BaseModel):
     title: str
     statement: str
     status: HypothesisStatus
+    evaluation_summary: str = ""
+    confidence: Optional[float] = None
 
 
 class CreateHypothesisInput(BaseModel):
@@ -231,6 +235,8 @@ def _list_literature_sync(project_id: int) -> List[LiteratureMeta]:
         results.append(LiteratureMeta(
             id=lit.id,
             title=lit.title,
+            authors=lit.authors or "",
+            journal_or_publisher=lit.journal_or_publisher or "",
             year=lit.year,
             doi=lit.doi or None,
             arxiv_id=lit.arxiv_id or None,
@@ -281,6 +287,73 @@ async def read_literature(request: LiteratureReadRequest) -> LiteratureReadResul
     return await sync_to_async(_read_literature_sync)(request)
 
 
+@function_tool
+async def deep_read_literature(literature_id: int) -> dict:
+    """Read the complete full text of a literature record. Use this when you need to deeply understand a paper's methods, results, or specific sections. Returns the full text without truncation."""
+
+    @sync_to_async
+    def _get():
+        from main.models import Literature
+        try:
+            lit = Literature.objects.get(pk=literature_id)
+        except Literature.DoesNotExist:
+            return {"error": f"Literature {literature_id} not found"}
+
+        text = lit.full_text or lit.abstract or ''
+        return {
+            "id": lit.pk,
+            "title": lit.title,
+            "authors": lit.authors,
+            "year": lit.year,
+            "doi": lit.doi,
+            "full_text_length": len(text),
+            "full_text": text,
+            "has_full_text": bool(lit.full_text and len(lit.full_text) > 500),
+        }
+
+    return await _get()
+
+
+@function_tool
+async def search_within_literature(project_id: int, query: str, max_results: int = 5) -> dict:
+    """Search within the full text of papers linked to this project. Returns matching snippets with context. Use this to find specific methods, results, claims, or data within the literature."""
+
+    @sync_to_async
+    def _search():
+        from main.models import Literature, Paper
+        from django.db.models import Q
+
+        try:
+            paper = Paper.objects.get(project_id=project_id)
+        except Paper.DoesNotExist:
+            return {"results": [], "error": "No paper found"}
+
+        literature = Literature.objects.filter(
+            citations__paper=paper,
+            full_text__icontains=query
+        ).distinct()[:max_results]
+
+        results = []
+        for lit in literature:
+            text = lit.full_text or ''
+            idx = text.lower().find(query.lower())
+            if idx >= 0:
+                start = max(0, idx - 200)
+                end = min(len(text), idx + len(query) + 200)
+                snippet = text[start:end]
+                results.append({
+                    "literature_id": lit.pk,
+                    "title": lit.title,
+                    "year": lit.year,
+                    "snippet": snippet,
+                    "match_position": idx,
+                })
+
+        return {"query": query, "results": results, "total_matches": len(results)}
+
+    return await _search()
+
+
 def _link_literature_sync(input: LinkLiteratureInput) -> LinkLiteratureResult:
     """Create or link a Literature entry to the project's paper via a Citation.
 
@@ -328,12 +401,15 @@ def _get_paper_sync(project_id: int) -> PaperModel:
     """Get the project's Paper (creating a default if missing)."""
     project = Project.objects.get(pk=project_id)
     paper, _ = Paper.objects.get_or_create(project=project, defaults={'title': project.name, 'abstract': project.abstract})
+    raw = paper.content_raw or ""
+    if len(raw) > 10000:
+        raw = raw[:10000] + "\n% ... [truncated]"
     return PaperModel(
         id=paper.id,
         title=paper.title,
         abstract=paper.abstract or "",
         content_format=paper.content_format,
-        content_raw=paper.content_raw or "",
+        content_raw=raw,
     )
 
 
@@ -385,7 +461,7 @@ def _run_experiment_sync(experiment_id: int) -> ExperimentDetail:
     sim.status = "running"
     sim.save(update_fields=["status", "updated_at"])
     try:
-        sim.run(timeout_seconds=30)
+        sim.run(timeout_seconds=120)
     finally:
         sim.refresh_from_db()
     return _get_experiment_sync(sim.id)
@@ -399,7 +475,14 @@ async def run_experiment(experiment_id: int) -> ExperimentDetail:
 
 def _list_hypotheses_sync(project_id: int) -> List[HypothesisModel]:
     items = Hypothesis.objects.filter(project_id=project_id).order_by('-updated_at')
-    return [HypothesisModel(id=h.id, title=h.title, statement=h.statement, status=HypothesisStatus(h.status)) for h in items]
+    return [HypothesisModel(
+        id=h.id,
+        title=h.title,
+        statement=h.statement,
+        status=HypothesisStatus(h.status),
+        evaluation_summary=h.evaluation_summary or "",
+        confidence=float(h.confidence) if h.confidence is not None else None,
+    ) for h in items]
 
 
 @function_tool

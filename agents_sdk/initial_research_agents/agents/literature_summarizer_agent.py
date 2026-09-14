@@ -4,7 +4,7 @@ from typing import List
 from pydantic import BaseModel, Field
 from agents import Agent, ModelSettings
 
-from ..tools import list_literature, read_literature
+from ..tools import list_literature, read_literature, deep_read_literature, search_within_literature
 
 
 SUMMARIZER_INSTRUCTIONS = """
@@ -31,7 +31,7 @@ literature_summarizer_agent = Agent(
         }
     ),
     instructions=SUMMARIZER_INSTRUCTIONS,
-    tools=[list_literature, read_literature],
+    tools=[list_literature, read_literature, deep_read_literature, search_within_literature],
     output_type=ProjectFocusedSummary,
 )
 

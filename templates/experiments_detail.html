@@ -1,44 +1,427 @@
 {% extends "base.html" %}
 
-{% block title %}ForgeLore — Experiment Detail{% endblock %}
+{% block title %}Lumen — {{ simulation.name }}{% endblock %}
+
+{% block extra_head %}
+<!-- CodeMirror -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@codemirror/view@6/dist/index.css">
+<style>
+  .cm-editor { height: 100%; font-size: 13px; }
+  .cm-editor .cm-content { font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Cascadia Code', ui-monospace, monospace; }
+  .cm-editor .cm-gutters { background: #fafaf9; border-right: 1px solid #e7e5e4; }
+  .cm-editor .cm-activeLineGutter { background: #f5f5f4; }
+  .cm-editor .cm-activeLine { background: #fafaf9; }
+  .cm-editor.cm-focused { outline: none; }
+  .output-scroll { max-height: 300px; overflow-y: auto; }
+  .output-scroll::-webkit-scrollbar { width: 4px; }
+  .output-scroll::-webkit-scrollbar-thumb { background: #d6d3d1; border-radius: 2px; }
+</style>
+{% endblock %}
 
 {% block page_header %}
 <div class="flex items-center justify-between">
-  <div>
-    <h1 class="text-xl font-semibold tracking-tight">{{ simulation.name }}</h1>
-    <p class="mt-1 text-sm text-gray-600">Project: {{ simulation.project.name }}</p>
+  <div class="flex items-center gap-3">
+    <a href="{% url 'experiments_list' %}" class="h-8 w-8 rounded-xl bg-warm-100 flex items-center justify-center text-warm-500 hover:text-warm-700 hover:bg-warm-200 transition">
+      <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+    </a>
+    <div>
+      <h1 class="font-display text-[24px] text-warm-900">{{ simulation.name }}</h1>
+      <p class="text-[13px] text-warm-500">{{ simulation.project.name }}{% if simulation.description %} &mdash; {{ simulation.description }}{% endif %}</p>
+    </div>
   </div>
-  <form method="post" action="{% url 'experiments_run' pk=simulation.pk %}">
-    {% csrf_token %}
-    <button type="submit" class="inline-flex items-center rounded-md bg-brand-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-700">Run</button>
-  </form>
+  <div class="flex items-center gap-2">
+    <form method="post" action="{% url 'experiments_duplicate' pk=simulation.pk %}" class="inline">
+      {% csrf_token %}
+      <button type="submit" class="inline-flex items-center gap-1.5 rounded-xl border border-warm-200 px-3.5 py-[7px] text-[13px] font-medium text-warm-600 hover:bg-warm-50 transition">
+        <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z"/><path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2V5h8a2 2 0 00-2-2H5z"/></svg>
+        Duplicate
+      </button>
+    </form>
+    <button id="run-btn" class="inline-flex items-center gap-1.5 rounded-xl bg-accent-600 px-4 py-[9px] text-[13px] font-semibold text-white hover:bg-accent-700 shadow-sm transition">
+      <svg id="run-icon" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
+      <span id="run-text">Run</span>
+    </button>
+  </div>
 </div>
 {% endblock %}
 
 {% block content %}
-<div class="grid grid-cols-1 gap-4">
-  <div class="rounded-lg border border-gray-200 bg-white p-4">
-    <h2 class="text-sm font-semibold">Status</h2>
-    <p class="mt-1 text-sm text-gray-700">{{ simulation.status }}{% if simulation.exit_code is not None %} (exit {{ simulation.exit_code }}){% endif %}</p>
-    <p class="mt-1 text-xs text-gray-500">Started: {{ simulation.started_at|default:"—" }} · Finished: {{ simulation.finished_at|default:"—" }}</p>
+<div class="mt-4 grid grid-cols-1 xl:grid-cols-5 gap-4">
+  <!-- Left: Code + Params -->
+  <div class="xl:col-span-3 space-y-4">
+    <!-- Code editor -->
+    <div class="rounded-2xl bg-white border border-warm-200 overflow-hidden">
+      <div class="px-4 py-2.5 border-b border-warm-100 flex items-center justify-between bg-warm-50/50">
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] font-semibold text-warm-400 uppercase tracking-widest">Code</span>
+          <span class="text-[11px] text-warm-300">{{ simulation.language }}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="relative">
+            <button id="template-btn" type="button" class="inline-flex items-center gap-1 rounded-lg border border-warm-200 px-2.5 py-1 text-[11px] font-medium text-warm-500 hover:text-warm-700 hover:bg-warm-50 transition">
+              <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/></svg>
+              Templates
+            </button>
+            <div id="template-dropdown" class="hidden absolute right-0 top-full mt-1 w-64 rounded-xl bg-white border border-warm-200 shadow-lifted z-50 overflow-hidden">
+              <div class="px-3 py-2 border-b border-warm-100">
+                <span class="text-[10px] font-semibold text-warm-400 uppercase tracking-widest">Load a template</span>
+              </div>
+              <div id="template-list" class="max-h-48 overflow-y-auto"></div>
+            </div>
+          </div>
+          <span id="code-status" class="text-[11px] text-warm-400"></span>
+        </div>
+      </div>
+      <textarea id="code-fallback" class="w-full px-4 py-3 text-[13px] font-mono text-warm-800 border-0 focus:ring-0 resize-y bg-white" rows="18" style="display:none;">{{ simulation.code|default:"" }}</textarea>
+      <div id="code-editor" style="height: 400px;"></div>
+    </div>
+
+    <!-- Parameters -->
+    <div class="rounded-2xl bg-white border border-warm-200 overflow-hidden">
+      <div class="px-4 py-2.5 border-b border-warm-100 bg-warm-50/50">
+        <span class="text-[11px] font-semibold text-warm-400 uppercase tracking-widest">Parameters</span>
+      </div>
+      <div class="p-4">
+        <textarea id="params-editor" rows="4" class="w-full rounded-xl border border-warm-200 bg-warm-50 px-3.5 py-2.5 text-[13px] font-mono text-warm-800 focus:bg-white focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 focus:outline-none transition-all" placeholder='{"key": "value"}'>{{ simulation.parameters|default:"{}"|safe }}</textarea>
+      </div>
+    </div>
   </div>
-  <div class="rounded-lg border border-gray-200 bg-white p-4">
-    <h2 class="text-sm font-semibold">Parameters</h2>
-    <pre class="mt-2 whitespace-pre-wrap text-xs">{{ simulation.parameters|default:"{}" }}</pre>
-  </div>
-  <div class="rounded-lg border border-gray-200 bg-white p-4">
-    <h2 class="text-sm font-semibold">Stdout</h2>
-    <pre class="mt-2 whitespace-pre-wrap text-xs">{{ simulation.stdout }}</pre>
-  </div>
-  <div class="rounded-lg border border-gray-200 bg-white p-4">
-    <h2 class="text-sm font-semibold">Stderr</h2>
-    <pre class="mt-2 whitespace-pre-wrap text-xs">{{ simulation.stderr }}</pre>
-  </div>
-  <div class="rounded-lg border border-gray-200 bg-white p-4">
-    <h2 class="text-sm font-semibold">Result</h2>
-    <pre class="mt-2 whitespace-pre-wrap text-xs">{{ simulation.result_json }}</pre>
+
+  <!-- Right: Output + Results + History -->
+  <div class="xl:col-span-2 space-y-4">
+    <!-- Status -->
+    <div class="rounded-2xl bg-white border border-warm-200 p-4">
+      <div class="flex items-center justify-between">
+        <span class="text-[11px] font-semibold text-warm-400 uppercase tracking-widest">Status</span>
+        <span id="status-badge" class="inline-flex items-center rounded-full px-2.5 py-[3px] text-[11px] font-semibold {% if simulation.status == 'success' %}bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200{% elif simulation.status == 'failed' %}bg-red-50 text-red-700 ring-1 ring-red-200{% elif simulation.status == 'running' %}bg-blue-50 text-blue-700 ring-1 ring-blue-200{% else %}bg-warm-100 text-warm-500 ring-1 ring-warm-200{% endif %}">{{ simulation.status }}</span>
+      </div>
+      <p id="status-time" class="mt-2 text-[11px] text-warm-400">
+        {% if simulation.finished_at %}Ran {{ simulation.finished_at|timesince }} ago{% elif simulation.started_at %}Started {{ simulation.started_at|timesince }} ago{% else %}Not run yet{% endif %}
+      </p>
+    </div>
+
+    <!-- Output -->
+    <div class="rounded-2xl bg-white border border-warm-200 overflow-hidden">
+      <div class="px-4 py-2.5 border-b border-warm-100 bg-warm-50/50 flex items-center justify-between">
+        <span class="text-[11px] font-semibold text-warm-400 uppercase tracking-widest">Output</span>
+        <div class="flex items-center gap-2">
+          <button id="tab-stdout" class="text-[11px] font-medium text-accent-600">stdout</button>
+          <span class="text-warm-300">|</span>
+          <button id="tab-stderr" class="text-[11px] font-medium text-warm-400 hover:text-warm-600 transition">stderr</button>
+        </div>
+      </div>
+      <div id="output-stdout" class="output-scroll">
+        <pre class="px-4 py-3 text-[12px] text-warm-700 font-mono leading-relaxed whitespace-pre-wrap">{{ simulation.stdout|default:"No output yet." }}</pre>
+      </div>
+      <div id="output-stderr" class="output-scroll hidden">
+        <pre class="px-4 py-3 text-[12px] text-red-700 font-mono leading-relaxed whitespace-pre-wrap bg-red-50/30">{{ simulation.stderr|default:"No errors." }}</pre>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div class="rounded-2xl bg-white border border-warm-200 overflow-hidden">
+      <div class="px-4 py-2.5 border-b border-warm-100 bg-warm-50/50 flex items-center justify-between">
+        <span class="text-[11px] font-semibold text-warm-400 uppercase tracking-widest">Result</span>
+        <div class="flex items-center gap-2">
+          <button id="tab-chart" class="text-[11px] font-medium text-accent-600">Chart</button>
+          <span class="text-warm-300">|</span>
+          <button id="tab-json" class="text-[11px] font-medium text-warm-400 hover:text-warm-600 transition">JSON</button>
+        </div>
+      </div>
+      <div id="result-chart" class="p-4">
+        <canvas id="result-canvas" style="max-height:240px;"></canvas>
+        <p id="no-chart" class="text-center text-[13px] text-warm-400 py-6 hidden">No chartable data.</p>
+      </div>
+      <div id="result-json" class="hidden">
+        <pre id="result-json-pre" class="px-4 py-3 text-[12px] text-warm-700 font-mono leading-relaxed whitespace-pre-wrap bg-warm-50/50">{{ simulation.result_json|default:"null" }}</pre>
+      </div>
+    </div>
+
+    <!-- Run history -->
+    <div class="rounded-2xl bg-white border border-warm-200 overflow-hidden">
+      <div class="px-4 py-2.5 border-b border-warm-100 bg-warm-50/50">
+        <span class="text-[11px] font-semibold text-warm-400 uppercase tracking-widest">Run history</span>
+      </div>
+      <div id="run-history" class="divide-y divide-warm-100 max-h-64 overflow-y-auto">
+        <div class="px-4 py-6 text-center text-[12px] text-warm-400">Loading...</div>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}
 
+{% block extra_js %}
+<!-- CodeMirror 6 from ESM bundle -->
+<script type="module">
+try {
+  const [{EditorView, basicSetup}, {python}] = await Promise.all([
+    import('https://esm.sh/codemirror@6'),
+    import('https://esm.sh/@codemirror/lang-python@6'),
+  ]);
 
+  const fallback = document.getElementById('code-fallback');
+  const initialCode = fallback.value;
+
+  const lightTheme = EditorView.theme({
+    '&': { backgroundColor: '#ffffff' },
+    '.cm-gutters': { backgroundColor: '#fafaf9', borderRight: '1px solid #e7e5e4' },
+    '.cm-activeLineGutter': { backgroundColor: '#f5f5f4' },
+    '.cm-activeLine': { backgroundColor: '#fafaf940' },
+  });
+
+  const view = new EditorView({
+    doc: initialCode,
+    extensions: [
+      basicSetup,
+      python(),
+      lightTheme,
+      EditorView.updateListener.of(v => {
+        if (v.docChanged) fallback.value = v.state.doc.toString();
+      }),
+    ],
+    parent: document.getElementById('code-editor'),
+  });
+
+  window._codeEditor = view;
+  document.getElementById('code-editor').style.display = '';
+  fallback.style.display = 'none';
+} catch(e) {
+  console.error('CodeMirror failed to load, using fallback textarea', e);
+  document.getElementById('code-fallback').style.display = '';
+  document.getElementById('code-editor').style.display = 'none';
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script>
+(function() {
+  const csrf = '{{ csrf_token_value }}';
+  const simPk = {{ simulation.pk }};
+  const runBtn = document.getElementById('run-btn');
+  const runText = document.getElementById('run-text');
+  const runIcon = document.getElementById('run-icon');
+  const statusBadge = document.getElementById('status-badge');
+  const statusTime = document.getElementById('status-time');
+  const stdoutEl = document.getElementById('output-stdout').querySelector('pre');
+  const stderrEl = document.getElementById('output-stderr').querySelector('pre');
+  const resultPre = document.getElementById('result-json-pre');
+  const historyEl = document.getElementById('run-history');
+
+  // Tab switching for output
+  document.getElementById('tab-stdout').addEventListener('click', function() {
+    document.getElementById('output-stdout').classList.remove('hidden');
+    document.getElementById('output-stderr').classList.add('hidden');
+    this.classList.replace('text-warm-400', 'text-accent-600');
+    document.getElementById('tab-stderr').classList.replace('text-accent-600', 'text-warm-400');
+  });
+  document.getElementById('tab-stderr').addEventListener('click', function() {
+    document.getElementById('output-stderr').classList.remove('hidden');
+    document.getElementById('output-stdout').classList.add('hidden');
+    this.classList.replace('text-warm-400', 'text-accent-600');
+    document.getElementById('tab-stdout').classList.replace('text-accent-600', 'text-warm-400');
+  });
+
+  // Tab switching for result
+  document.getElementById('tab-chart').addEventListener('click', function() {
+    document.getElementById('result-chart').classList.remove('hidden');
+    document.getElementById('result-json').classList.add('hidden');
+    this.classList.replace('text-warm-400', 'text-accent-600');
+    document.getElementById('tab-json').classList.replace('text-accent-600', 'text-warm-400');
+  });
+  document.getElementById('tab-json').addEventListener('click', function() {
+    document.getElementById('result-json').classList.remove('hidden');
+    document.getElementById('result-chart').classList.add('hidden');
+    this.classList.replace('text-warm-400', 'text-accent-600');
+    document.getElementById('tab-chart').classList.replace('text-accent-600', 'text-warm-400');
+  });
+
+  // Status badge helper
+  const statusColors = {
+    success: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200',
+    failed: 'bg-red-50 text-red-700 ring-1 ring-red-200',
+    running: 'bg-blue-50 text-blue-700 ring-1 ring-blue-200',
+    draft: 'bg-warm-100 text-warm-500 ring-1 ring-warm-200',
+    pending: 'bg-amber-50 text-amber-700 ring-1 ring-amber-200',
+  };
+  function setStatus(status) {
+    statusBadge.className = 'inline-flex items-center rounded-full px-2.5 py-[3px] text-[11px] font-semibold ' + (statusColors[status] || statusColors.draft);
+    statusBadge.textContent = status;
+  }
+
+  // Run experiment via AJAX
+  let running = false;
+  runBtn.addEventListener('click', async function() {
+    if (running) return;
+    running = true;
+    runText.textContent = 'Running...';
+    runIcon.innerHTML = '<svg class="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>';
+    setStatus('running');
+    stdoutEl.textContent = 'Running...';
+    stderrEl.textContent = '';
+
+    // Get code from CodeMirror or fallback textarea
+    const code = window._codeEditor
+      ? window._codeEditor.state.doc.toString()
+      : document.getElementById('code-fallback').value;
+    let params = {};
+    try { params = JSON.parse(document.getElementById('params-editor').value || '{}'); } catch(e) {}
+
+    try {
+      const res = await fetch(`/experiments/${simPk}/run-ajax/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
+        body: JSON.stringify({ code, parameters: params }),
+      });
+      const data = await res.json();
+
+      setStatus(data.status);
+      stdoutEl.textContent = data.stdout || 'No output.';
+      stderrEl.textContent = data.stderr || 'No errors.';
+      resultPre.textContent = data.result_json ? JSON.stringify(data.result_json, null, 2) : 'null';
+      statusTime.textContent = 'Just now';
+
+      // Re-render chart
+      renderChart(data.result_json);
+
+      // Refresh history
+      loadHistory();
+    } catch(e) {
+      setStatus('failed');
+      stderrEl.textContent = 'Request failed: ' + e.message;
+    } finally {
+      running = false;
+      runText.textContent = 'Run';
+      runIcon.innerHTML = '<svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>';
+    }
+  });
+
+  // Chart rendering
+  let chartInstance = null;
+  const colors = ['rgba(13,148,136,0.8)','rgba(59,130,246,0.8)','rgba(168,85,247,0.8)','rgba(245,158,11,0.8)','rgba(239,68,68,0.8)','rgba(34,197,94,0.8)'];
+  const bgColors = colors.map(c => c.replace('0.8','0.15'));
+
+  function renderChart(data) {
+    const canvas = document.getElementById('result-canvas');
+    const noChart = document.getElementById('no-chart');
+    if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+    if (!data || typeof data !== 'object') { canvas.style.display = 'none'; noChart.classList.remove('hidden'); return; }
+    canvas.style.display = ''; noChart.classList.add('hidden');
+
+    let config = null;
+    if (!Array.isArray(data)) {
+      const keys = Object.keys(data);
+      const numKeys = keys.filter(k => typeof data[k] === 'number');
+      const arrKeys = keys.filter(k => Array.isArray(data[k]) && data[k].length && typeof data[k][0] === 'number');
+      if (arrKeys.length >= 1) {
+        config = { type: 'line', data: { labels: data[arrKeys[0]].map((_,i) => i), datasets: arrKeys.map((k,i) => ({label:k,data:data[k],borderColor:colors[i%colors.length],backgroundColor:bgColors[i%bgColors.length],tension:0.3,pointRadius:data[k].length>50?0:3})) }};
+      } else if (numKeys.length >= 2) {
+        config = { type: 'bar', data: { labels: numKeys, datasets: [{data:numKeys.map(k=>data[k]),backgroundColor:numKeys.map((_,i)=>bgColors[i%bgColors.length]),borderColor:numKeys.map((_,i)=>colors[i%colors.length]),borderWidth:2,borderRadius:6}] }, options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}} };
+      }
+    } else if (data.length >= 2 && typeof data[0] === 'number') {
+      config = { type: 'line', data: { labels: data.map((_,i)=>i), datasets: [{data,borderColor:colors[0],backgroundColor:bgColors[0],fill:true,tension:0.3}] }};
+    }
+    if (config) {
+      config.options = config.options || {};
+      config.options.responsive = true;
+      config.options.maintainAspectRatio = false;
+      config.options.animation = {duration:400};
+      canvas.style.height = '200px';
+      chartInstance = new Chart(canvas.getContext('2d'), config);
+    } else {
+      canvas.style.display = 'none'; noChart.classList.remove('hidden');
+    }
+  }
+
+  // Initial chart render
+  {% if simulation.result_json %}
+  renderChart({{ simulation.result_json|safe }});
+  {% endif %}
+
+  // Run history
+  async function loadHistory() {
+    try {
+      const res = await fetch(`/experiments/${simPk}/history/`);
+      const data = await res.json();
+      const runs = data.runs || [];
+      if (!runs.length) { historyEl.innerHTML = '<div class="px-4 py-6 text-center text-[12px] text-warm-400">No runs yet. Click Run to start.</div>'; return; }
+      historyEl.innerHTML = runs.map(r => {
+        const sc = statusColors[r.status] || statusColors.draft;
+        const time = r.finished_at ? new Date(r.finished_at).toLocaleString() : 'In progress';
+        return `<div class="px-4 py-2.5 flex items-center justify-between hover:bg-warm-50/50 transition cursor-default">
+          <div class="min-w-0">
+            <span class="inline-flex items-center rounded-full px-2 py-[1px] text-[10px] font-semibold ${sc}">${r.status}</span>
+            <span class="text-[11px] text-warm-400 ml-2">${time}</span>
+          </div>
+          ${r.exit_code !== null ? '<span class="text-[10px] text-warm-400 tabular-nums">exit ' + r.exit_code + '</span>' : ''}
+        </div>`;
+      }).join('');
+    } catch(e) { historyEl.innerHTML = '<div class="px-4 py-4 text-[12px] text-red-500">Failed to load</div>'; }
+  }
+  loadHistory();
+
+  // Keyboard shortcut: Ctrl+Enter to run
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      runBtn.click();
+    }
+  });
+
+  // Template picker
+  const templateBtn = document.getElementById('template-btn');
+  const templateDropdown = document.getElementById('template-dropdown');
+  const templateList = document.getElementById('template-list');
+
+  templateBtn.addEventListener('click', async function(e) {
+    e.stopPropagation();
+    const isHidden = templateDropdown.classList.contains('hidden');
+    templateDropdown.classList.toggle('hidden');
+    if (isHidden && !templateList.dataset.loaded) {
+      templateList.innerHTML = '<div class="px-3 py-4 text-center text-[11px] text-warm-400">Loading...</div>';
+      try {
+        const res = await fetch('/experiments/templates/');
+        const data = await res.json();
+        templateList.dataset.loaded = '1';
+        templateList.innerHTML = (data.templates || []).map(t =>
+          `<button type="button" data-tpl='${JSON.stringify({code:t.code,parameters:t.parameters}).replace(/'/g,"&#39;")}' class="w-full text-left px-3 py-2.5 hover:bg-warm-50 transition border-b border-warm-100 last:border-0">
+            <p class="text-[12px] font-semibold text-warm-800">${t.name}</p>
+            <p class="text-[11px] text-warm-400 mt-0.5">${t.description}</p>
+          </button>`
+        ).join('');
+      } catch(e) {
+        templateList.innerHTML = '<div class="px-3 py-4 text-center text-[11px] text-red-500">Failed to load</div>';
+      }
+    }
+  });
+
+  // Close dropdown on outside click
+  document.addEventListener('click', function() {
+    templateDropdown.classList.add('hidden');
+  });
+  templateDropdown.addEventListener('click', function(e) { e.stopPropagation(); });
+
+  // Apply template
+  templateList.addEventListener('click', function(e) {
+    const btn = e.target.closest('[data-tpl]');
+    if (!btn) return;
+    try {
+      const tpl = JSON.parse(btn.dataset.tpl);
+      // Update CodeMirror editor
+      // Update code in both CodeMirror and fallback textarea
+      document.getElementById('code-fallback').value = tpl.code || '';
+      if (window._codeEditor) {
+        const doc = window._codeEditor.state.doc;
+        window._codeEditor.dispatch({
+          changes: { from: 0, to: doc.length, insert: tpl.code || '' }
+        });
+      }
+      // Update params
+      document.getElementById('params-editor').value = JSON.stringify(tpl.parameters || {}, null, 2);
+      templateDropdown.classList.add('hidden');
+      document.getElementById('code-status').textContent = 'Template loaded';
+      setTimeout(() => { document.getElementById('code-status').textContent = ''; }, 2000);
+    } catch(err) { console.error('Failed to apply template', err); }
+  });
+})();
+</script>
+{% endblock %}

@@ -1,321 +1,118 @@
 {% extends "base.html" %}
 
-{% block title %}ForgeLore — New Project{% endblock %}
+{% block title %}Lumen — New Project{% endblock %}
 
 {% block page_header %}
-<div class="flex items-center justify-between">
-  <div>
-    <h1 class="text-xl font-semibold tracking-tight">New project</h1>
-    <p class="mt-1 text-sm text-gray-600">Start your research project by defining the core idea and optionally uploading a draft.</p>
-  </div>
-  <div class="flex items-center gap-2">
-    <a href="{% url 'projects_list' %}" class="inline-flex items-center rounded-md border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50">
-      <svg class="mr-2 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z" clip-rule="evenodd"/>
-      </svg>
-      Back to Projects
-    </a>
-  </div>
-</div>
+<h1 class="text-[36px] font-serif font-bold text-[#2d2a26] tracking-[-0.02em]">New project</h1>
 {% endblock %}
 
 {% block content %}
-<form method="post" enctype="multipart/form-data" class="space-y-6">
+<form method="post" enctype="multipart/form-data" class="mt-6 max-w-[560px]">
   {% csrf_token %}
   {{ form.non_field_errors }}
 
-  <!-- Project Details -->
-  <div class="rounded-lg border border-gray-200 bg-white p-6">
-    <div class="flex items-center gap-2 mb-4">
-      <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
-      </svg>
-      <h2 class="text-lg font-medium text-gray-900">Project Details</h2>
-    </div>
-
-    <div class="grid grid-cols-1 gap-6">
-      <div>
-        <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-          <svg class="inline mr-1 h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          Project Name
-        </label>
-        {{ form.name }}
-        <p class="mt-1 text-xs text-gray-500">Choose a clear, descriptive name for your research project.</p>
-      </div>
-
-      <div>
-        <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-          <svg class="inline mr-1 h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-          </svg>
-          Research Idea / Description
-        </label>
-        <div class="relative">
-          {{ form.description }}
-          <button type="button" id="mic-description" aria-label="Record description"
-                  class="absolute top-2 right-2 inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
-            <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path d="M10 2a2 2 0 00-2 2v6a2 2 0 104 0V4a2 2 0 00-2-2z"/>
-              <path fill-rule="evenodd" d="M5 9a1 1 0 112 0 3 3 0 106 0 1 1 0 112 0 5 5 0 01-4 4.9V16h2a1 1 0 110 2H7a1 1 0 110-2h2v-2.1A5 5 0 015 9z" clip-rule="evenodd"/>
-            </svg>
-          </button>
-        </div>
-        <div class="mt-2 text-xs text-gray-500 space-y-1">
-          <p>Describe your research idea or hypothesis. This doesn't need to be a full abstract yet.</p>
-          <p class="font-medium">Examples:</p>
-          <ul class="list-disc list-inside space-y-1 ml-2">
-            <li>"Investigating the efficiency of quantum key distribution protocols in metropolitan networks"</li>
-            <li>"Machine learning approaches for predicting protein folding patterns"</li>
-            <li>"Analysis of renewable energy adoption rates in developing countries"</li>
-          </ul>
-        </div>
-      </div>
-
-      <div>
-        <label for="{{ form.abstract.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-          <svg class="inline mr-1 h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
-          </svg>
-          Abstract <span class="text-gray-400">(optional)</span>
-        </label>
-        <div class="relative">
-          {{ form.abstract }}
-          <button type="button" id="mic-abstract" aria-label="Record abstract"
-                  class="absolute top-2 right-2 inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
-            <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path d="M10 2a2 2 0 00-2 2v6a2 2 0 104 0V4a2 2 0 00-2-2z"/>
-              <path fill-rule="evenodd" d="M5 9a1 1 0 112 0 3 3 0 106 0 1 1 0 112 0 5 5 0 01-4 4.9V16h2a1 1 0 110 2H7a1 1 0 110-2h2v-2.1A5 5 0 015 9z" clip-rule="evenodd"/>
-            </svg>
-          </button>
-        </div>
-        <p class="mt-1 text-xs text-gray-500">Provide a formal abstract if you have one. This can be added or refined later as your research develops.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Document Upload -->
-  <div class="rounded-lg border border-gray-200 bg-white p-6">
-    <div class="flex items-center gap-2 mb-4">
-      <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586 11.293 8.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L7 10.586 5.707 9.293z" clip-rule="evenodd"/>
-      </svg>
-      <h2 class="text-lg font-medium text-gray-900">Import Existing Work</h2>
-    </div>
-
-    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-      <div class="flex items-start gap-3">
-        <svg class="h-5 w-5 text-blue-600 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-        </svg>
-        <div>
-          <h3 class="text-sm font-medium text-blue-900">Smart Document Processing</h3>
-          <p class="text-sm text-blue-800 mt-1">Upload a PDF or text file of your existing research. ForgeLore will automatically extract the content and create a structured paper entry for your project.</p>
-        </div>
-      </div>
-    </div>
-
+  <div class="space-y-5">
     <div>
-      <label for="{{ form.paper_file.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-        <svg class="inline mr-1 h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
-        </svg>
-        Document File <span class="text-gray-400">(optional)</span>
-      </label>
-      {{ form.paper_file }}
-      <div class="mt-2 text-xs text-gray-500 space-y-1">
-        <p>Supported formats: PDF and plain text files</p>
-        <p>The uploaded content will be automatically processed and added to your project's paper.</p>
+      <label for="{{ form.name.id_for_label }}" class="block text-[13px] text-[#787774] mb-1">Project name</label>
+      {{ form.name }}
+    </div>
+    <div>
+      <label for="{{ form.description.id_for_label }}" class="block text-[13px] text-[#787774] mb-1">Research question</label>
+      <div class="relative">
+        {{ form.description }}
+        <button type="button" id="mic-description" aria-label="Record description"
+                class="absolute top-2 right-2 h-7 w-7 rounded border border-[#e3e2de] bg-white flex items-center justify-center text-[#787774] hover:text-[#37352f] hover:bg-[#f7f6f3] transition">
+          <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M10 2a2 2 0 00-2 2v6a2 2 0 104 0V4a2 2 0 00-2-2z"/>
+            <path fill-rule="evenodd" d="M5 9a1 1 0 112 0 3 3 0 106 0 1 1 0 112 0 5 5 0 01-4 4.9V16h2a1 1 0 110 2H7a1 1 0 110-2h2v-2.1A5 5 0 015 9z" clip-rule="evenodd"/>
+          </svg>
+        </button>
       </div>
+      <p class="mt-1 text-[12px] text-[#787774]">e.g., How do export controls affect semiconductor supply chain resilience?</p>
+    </div>
+    <div>
+      <label for="{{ form.abstract.id_for_label }}" class="block text-[13px] text-[#787774] mb-1">Abstract <span class="text-[#787774]">(optional)</span></label>
+      <div class="relative">
+        {{ form.abstract }}
+        <button type="button" id="mic-abstract" aria-label="Record abstract"
+                class="absolute top-2 right-2 h-7 w-7 rounded border border-[#e3e2de] bg-white flex items-center justify-center text-[#787774] hover:text-[#37352f] hover:bg-[#f7f6f3] transition">
+          <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M10 2a2 2 0 00-2 2v6a2 2 0 104 0V4a2 2 0 00-2-2z"/>
+            <path fill-rule="evenodd" d="M5 9a1 1 0 112 0 3 3 0 106 0 1 1 0 112 0 5 5 0 01-4 4.9V16h2a1 1 0 110 2H7a1 1 0 110-2h2v-2.1A5 5 0 015 9z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="pt-2 border-t border-[#e3e2de]">
+      <label for="{{ form.paper_file.id_for_label }}" class="block text-[13px] text-[#787774] mb-1">Upload a document <span class="text-[#787774]">(optional, PDF or text)</span></label>
+      {{ form.paper_file }}
     </div>
   </div>
 
-  <!-- Submit -->
-  <div class="flex items-center justify-end gap-3 pt-4">
-    <a href="{% url 'projects_list' %}" class="inline-flex items-center rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50">
-      Cancel
-    </a>
-    <button type="submit" class="inline-flex items-center rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2">
-      <svg class="mr-2 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-      </svg>
-      Create Project
-    </button>
+  <div class="mt-8 flex items-center gap-3">
+    <button type="submit" class="rounded bg-[#8b6834] px-4 py-2 text-[14px] font-medium text-white hover:bg-[#7a5a2d] transition">Create</button>
+    <a href="{% url 'projects_list' %}" class="text-[14px] text-[#787774] hover:text-[#37352f] transition">Cancel</a>
   </div>
 </form>
 {% endblock %}
-
-
 
 {% block extra_js %}
 <script>
   (function() {
     function getCookie(name) {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
+      const value = '; ' + document.cookie;
+      const parts = value.split('; ' + name + '=');
       if (parts.length === 2) return parts.pop().split(';').shift();
     }
-
     const csrfToken = getCookie('csrftoken') || (document.querySelector('input[name="csrfmiddlewaretoken"]') ? document.querySelector('input[name="csrfmiddlewaretoken"]').value : '');
-
-    // State management for each button
     const buttonStates = new Map();
-
-    const STATES = {
-      IDLE: 'idle',
-      RECORDING: 'recording', 
-      PROCESSING: 'processing'
+    const STATES = { IDLE: 'idle', RECORDING: 'recording', PROCESSING: 'processing' };
+    const UI = {
+      [STATES.IDLE]: { html: '<svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a2 2 0 00-2 2v6a2 2 0 104 0V4a2 2 0 00-2-2z"/><path fill-rule="evenodd" d="M5 9a1 1 0 112 0 3 3 0 106 0 1 1 0 112 0 5 5 0 01-4 4.9V16h2a1 1 0 110 2H7a1 1 0 110-2h2v-2.1A5 5 0 015 9z" clip-rule="evenodd"/></svg>', cls: ['border-[#e3e2de]', 'bg-white', 'text-[#787774]'] },
+      [STATES.RECORDING]: { html: '<svg class="animate-pulse h-3.5 w-3.5 text-[#eb5757]" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="6"/></svg>', cls: ['border-[#eb5757]', 'bg-white', 'text-[#eb5757]'] },
+      [STATES.PROCESSING]: { html: '<svg class="animate-spin h-3.5 w-3.5 text-[#8b6834]" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>', cls: ['border-[#8b6834]', 'bg-white', 'text-[#8b6834]'] }
     };
-
-    const UI_CONFIGS = {
-      [STATES.IDLE]: {
-        html: '<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2a2 2 0 00-2 2v6a2 2 0 104 0V4a2 2 0 00-2-2z"/><path fill-rule="evenodd" d="M5 9a1 1 0 112 0 3 3 0 106 0 1 1 0 112 0 5 5 0 01-4 4.9V16h2a1 1 0 110 2H7a1 1 0 110-2h2v-2.1A5 5 0 015 9z" clip-rule="evenodd"/></svg>',
-        classes: ['border-gray-300', 'bg-white', 'text-gray-700', 'hover:bg-gray-50'],
-        title: 'Start recording'
-      },
-      [STATES.RECORDING]: {
-        html: '<svg class="animate-pulse h-4 w-4 text-red-600" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="6"/></svg>',
-        classes: ['border-red-300', 'bg-red-50', 'text-red-700', 'ring-2', 'ring-red-200'],
-        title: 'Recording... Click to stop'
-      },
-      [STATES.PROCESSING]: {
-        html: '<svg class="animate-spin h-4 w-4 text-brand-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>',
-        classes: ['border-brand-300', 'bg-brand-50', 'text-brand-700', 'ring-2', 'ring-brand-200'],
-        title: 'Processing transcription...'
-      }
-    };
-
-    function updateButtonUI(btn, state) {
-      const config = UI_CONFIGS[state];
-      if (!config) return;
-
-      // Remove all possible classes
-      const allClasses = Object.values(UI_CONFIGS).flatMap(c => c.classes);
-      btn.classList.remove(...allClasses);
-      
-      // Add current state classes
-      btn.classList.add(...config.classes);
-      btn.innerHTML = config.html;
-      btn.title = config.title;
+    function setUI(btn, state) {
+      const all = Object.values(UI).flatMap(c => c.cls);
+      btn.classList.remove(...all);
+      btn.classList.add(...UI[state].cls);
+      btn.innerHTML = UI[state].html;
       btn.disabled = state === STATES.PROCESSING;
     }
-
-    async function recordAndTranscribe(targetTextarea, btn) {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert('Microphone not supported in this browser.');
-        return;
-      }
-
-      const buttonId = btn.id;
-      const currentState = buttonStates.get(buttonId) || STATES.IDLE;
-
-      // If already recording, stop it
-      if (currentState === STATES.RECORDING) {
-        const stateData = buttonStates.get(buttonId + '_data');
-        if (stateData && stateData.recorder && stateData.recorder.state === 'recording') {
-          stateData.recorder.stop();
-        }
-        return;
-      }
-
-      // If processing, ignore click
-      if (currentState === STATES.PROCESSING) {
-        return;
-      }
-
-      // Start new recording
+    async function rec(ta, btn) {
+      if (!navigator.mediaDevices?.getUserMedia) { alert('Microphone not supported.'); return; }
+      const id = btn.id, cur = buttonStates.get(id) || STATES.IDLE;
+      if (cur === STATES.RECORDING) { const d = buttonStates.get(id+'_d'); if (d?.recorder?.state==='recording') d.recorder.stop(); return; }
+      if (cur === STATES.PROCESSING) return;
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-        const chunks = [];
-
-        recorder.ondataavailable = (e) => {
-          if (e.data && e.data.size > 0) chunks.push(e.data);
-        };
-
-        const stopStream = () => stream.getTracks().forEach(t => t.stop());
-
-        buttonStates.set(buttonId, STATES.RECORDING);
-        buttonStates.set(buttonId + '_data', { recorder, stream });
-        updateButtonUI(btn, STATES.RECORDING);
-
+        const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+        const recorder = new MediaRecorder(stream,{mimeType:'audio/webm'}), chunks = [];
+        recorder.ondataavailable = e => { if (e.data?.size>0) chunks.push(e.data); };
+        const stop = () => stream.getTracks().forEach(t=>t.stop());
+        buttonStates.set(id, STATES.RECORDING); buttonStates.set(id+'_d',{recorder,stream}); setUI(btn, STATES.RECORDING);
         recorder.onstop = async () => {
-          buttonStates.set(buttonId, STATES.PROCESSING);
-          updateButtonUI(btn, STATES.PROCESSING);
-          
+          buttonStates.set(id, STATES.PROCESSING); setUI(btn, STATES.PROCESSING);
           try {
-            const blob = new Blob(chunks, { type: 'audio/webm' });
-            if (blob.size === 0) {
-              throw new Error('No audio recorded');
-            }
-
-            const form = new FormData();
-            form.append('audio', blob, 'recording.webm');
-            const resp = await fetch('{% url "transcribe_audio" %}', {
-              method: 'POST',
-              headers: { 'X-CSRFToken': csrfToken },
-              body: form,
-            });
-            const data = await resp.json();
-            
-            if (resp.ok && data.text) {
-              const current = targetTextarea.value.trim();
-              const sep = current ? (current.endsWith('\n') ? '' : '\n') : '';
-              targetTextarea.value = current + sep + data.text.trim();
-              targetTextarea.dispatchEvent(new Event('input', { bubbles: true }));
-              
-              // Brief success indication
-              updateButtonUI(btn, STATES.IDLE);
-              btn.classList.add('ring-2', 'ring-green-200', 'bg-green-50');
-              setTimeout(() => {
-                btn.classList.remove('ring-2', 'ring-green-200', 'bg-green-50');
-                updateButtonUI(btn, STATES.IDLE);
-              }, 1000);
-            } else {
-              throw new Error(data.error || 'Transcription failed');
-            }
-          } catch (err) {
-            console.error('Transcription error:', err);
-            alert('Error during transcription: ' + err.message);
-            updateButtonUI(btn, STATES.IDLE);
-          } finally {
-            stopStream();
-            buttonStates.delete(buttonId + '_data');
-            if (buttonStates.get(buttonId) === STATES.PROCESSING) {
-              buttonStates.set(buttonId, STATES.IDLE);
-            }
-          }
+            const blob = new Blob(chunks,{type:'audio/webm'}); if (!blob.size) throw new Error('No audio');
+            const fd = new FormData(); fd.append('audio',blob,'rec.webm');
+            const r = await fetch('{% url "transcribe_audio" %}',{method:'POST',headers:{'X-CSRFToken':csrfToken},body:fd});
+            const d = await r.json();
+            if (r.ok && d.text) { const c = ta.value.trim(); ta.value = c + (c && !c.endsWith('\n') ? '\n' : '') + d.text.trim(); ta.dispatchEvent(new Event('input',{bubbles:true})); }
+            else throw new Error(d.error||'Failed');
+          } catch(e) { alert('Transcription error: '+e.message); }
+          finally { stop(); buttonStates.delete(id+'_d'); buttonStates.set(id, STATES.IDLE); setUI(btn, STATES.IDLE); }
         };
-
         recorder.start();
-
-      } catch (err) {
-        console.error('Recording error:', err);
-        alert('Error accessing microphone: ' + err.message);
-        buttonStates.set(buttonId, STATES.IDLE);
-        updateButtonUI(btn, STATES.IDLE);
-      }
+      } catch(e) { alert('Mic error: '+e.message); buttonStates.set(id, STATES.IDLE); setUI(btn, STATES.IDLE); }
     }
-
-    function hookButton(buttonId, textareaId) {
-      const btn = document.getElementById(buttonId);
-      const ta = document.getElementById(textareaId) || document.querySelector(`[name="${textareaId}"]`);
-      if (!btn || !ta) return;
-      
-      // Initialize button state
-      buttonStates.set(buttonId, STATES.IDLE);
-      updateButtonUI(btn, STATES.IDLE);
-      
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        recordAndTranscribe(ta, btn);
-      });
+    function hook(bid, tid) {
+      const b = document.getElementById(bid), t = document.getElementById(tid) || document.querySelector('[name="'+tid+'"]');
+      if (!b||!t) return; buttonStates.set(bid, STATES.IDLE); setUI(b, STATES.IDLE);
+      b.addEventListener('click', e => { e.preventDefault(); rec(t, b); });
     }
-
-    // Django renders textarea ids as id_{{ field_name }} by default
-    hookButton('mic-description', '{{ form.description.id_for_label }}');
-    hookButton('mic-abstract', '{{ form.abstract.id_for_label }}');
+    hook('mic-description', '{{ form.description.id_for_label }}');
+    hook('mic-abstract', '{{ form.abstract.id_for_label }}');
   })();
 </script>
 {% endblock %}

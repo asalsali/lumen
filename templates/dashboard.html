@@ -1,129 +1,107 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}ForgeLore — Overview{% endblock %}
+{% block title %}Lumen — Dashboard{% endblock %}
 
 {% block page_header %}
 <div class="flex items-center justify-between">
   <div>
-    <h1 class="text-xl font-semibold tracking-tight">Overview</h1>
-    <p class="mt-1 text-sm text-gray-600">Monitor your research workspace at a glance.</p>
+    <p class="text-[13px] text-[#787774]">Welcome back,</p>
+    <h1 class="text-[36px] font-serif font-bold text-[#2d2a26] tracking-[-0.02em] leading-tight">{{ user.username }}</h1>
   </div>
-  <div class="flex items-center gap-2">
-    <a href="{% url 'projects_create' %}" class="inline-flex items-center rounded-md bg-brand-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-700">New research</a>
-    <a href="{% url 'experiments_create' %}" class="inline-flex items-center rounded-md border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50">New experiment</a>
-  </div>
-  </div>
+  <a href="{% url 'projects_create' %}" class="text-[14px] text-[#8b6834] hover:underline">+ New project</a>
+</div>
 {% endblock %}
 
 {% block content %}
-<!-- KPI cards -->
-<div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-  <div class="rounded-lg border border-gray-200 bg-white p-4">
-    <p class="text-xs text-gray-500">Projects</p>
-    <p class="mt-2 text-2xl font-semibold">{{ projects_count }}</p>
-  </div>
-  <div class="rounded-lg border border-gray-200 bg-white p-4">
-    <p class="text-xs text-gray-500">Literature reviews</p>
-    <p class="mt-2 text-2xl font-semibold">{{ literature_count }}</p>
-  </div>
-  <div class="rounded-lg border border-gray-200 bg-white p-4">
-    <p class="text-xs text-gray-500">Experiments run</p>
-    <p class="mt-2 text-2xl font-semibold">{{ experiments_count }}</p>
-  </div>
 
+{% if needs_attention %}
+<div class="mt-6 border-l-2 border-[#dfab01] bg-[#f7f6f3] px-4 py-3">
+  <div class="text-[13px] font-semibold text-[#37352f] mb-2">Needs your attention</div>
+  {% for item in needs_attention %}
+  <a href="{{ item.url }}" class="flex items-center gap-2 py-1 text-[13px] text-[#787774] hover:text-[#37352f] transition">
+    <span class="h-1.5 w-1.5 rounded-full shrink-0 {% if item.type == 'automation_failed' or item.type == 'experiment_failed' %}bg-[#eb5757]{% else %}bg-[#dfab01]{% endif %}"></span>
+    {{ item.title }}
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Stats -->
+<div class="mt-8 flex items-center gap-8 text-[14px] border-b border-[#e3e2de] pb-6">
+  <div>
+    <span class="text-[24px] font-bold text-[#37352f] tabular-nums">{{ total_projects }}</span>
+    <span class="text-[13px] text-[#787774] ml-1">projects</span>
+  </div>
+  <div>
+    <span class="text-[24px] font-bold text-[#37352f] tabular-nums">{{ total_literature }}</span>
+    <span class="text-[13px] text-[#787774] ml-1">papers</span>
+  </div>
+  <div>
+    <span class="text-[24px] font-bold text-[#37352f] tabular-nums">{{ total_hypotheses }}</span>
+    <span class="text-[13px] text-[#787774] ml-1">hypotheses</span>
+    {% if total_supported %}<span class="text-[12px] text-[#4dab9a] ml-1">{{ total_supported }} supported</span>{% endif %}
+  </div>
+  <div>
+    <span class="text-[24px] font-bold text-[#37352f] tabular-nums">{{ total_experiments }}</span>
+    <span class="text-[13px] text-[#787774] ml-1">experiments</span>
+    {% if total_exp_success %}<span class="text-[12px] text-[#4dab9a] ml-1">{{ total_exp_success }} passed</span>{% endif %}
+  </div>
 </div>
 
-<!-- Quick actions -->
-<div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-  <a href="{% url 'experiments_create' %}" class="group rounded-lg border border-gray-200 bg-white p-5 hover:border-gray-300">
-    <div class="flex items-center gap-3">
-      <!-- Icon: Beaker -->
-      <svg class="h-5 w-5 text-gray-400 group-hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7 2a1 1 0 00-.894.553L2.382 4H1a1 1 0 000 2v10a2 2 0 002 2h1.618l4.447 2.894A1 1 0 009 18V4.236l1.618-1.05A1 1 0 0010 2H7zM3 6v8h2V6H3zm8 0v8h2V6h-2z" clip-rule="evenodd"/></svg>
-      <div>
-        <p class="font-medium">New experiment</p>
-        <p class="text-xs text-gray-500">Run hypothesis tests</p>
-      </div>
-    </div>
-  </a>
-  <a href="{% url 'literature_search' %}" class="group rounded-lg border border-gray-200 bg-white p-5 hover:border-gray-300">
-    <div class="flex items-center gap-3">
-      <!-- Icon: Arrow Down Tray -->
-      <svg class="h-5 w-5 text-gray-400 group-hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v6a1 1 0 11-2 0V4H5v5a1 1 0 11-2 0V3zm6 5a1 1 0 112 0v4.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 011.414-1.414L9 12.586V8zM4 16a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
-      <div>
-        <p class="font-medium">Search literature</p>
-        <p class="text-xs text-gray-500">Find papers from arXiv & more</p>
-      </div>
-    </div>
-  </a>
-  <a href="{% url 'projects_create' %}" class="group rounded-lg border border-gray-200 bg-white p-5 hover:border-gray-300">
-    <div class="flex items-center gap-3">
-      <!-- Icon: Plus Circle -->
-      <svg class="h-5 w-5 text-gray-400 group-hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/></svg>
-      <div>
-        <p class="font-medium">New project</p>
-        <p class="text-xs text-gray-500">Start a research project</p>
-      </div>
-    </div>
-  </a>
-</div>
+<!-- Projects list -->
+<div class="mt-6">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-[18px] font-semibold text-[#37352f]">Your research</h2>
+    <a href="{% url 'projects_list' %}" class="text-[13px] text-[#787774] hover:text-[#8b6834] transition">View all</a>
+  </div>
 
-<!-- Activity & Active Projects -->
-<div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
-  <div class="lg:col-span-2 rounded-lg border border-gray-200 bg-white p-5">
-    <h3 class="text-sm font-semibold">Recent activity</h3>
-    {% if activities %}
-    <ul class="mt-4 space-y-3 text-sm">
-      {% for activity in activities %}
-      <li class="flex items-start gap-3">
-        <span class="mt-1 inline-block h-2 w-2 rounded-full {{ activity.icon_color }}"></span>
-        <div>
-          {% if activity.url != "#" %}
-          <a href="{{ activity.url }}" class="font-medium hover:text-brand-600">{{ activity.title }}</a>
-          {% else %}
-          <p class="font-medium">{{ activity.title }}</p>
-          {% endif %}
-          <p class="text-gray-500">{{ activity.timestamp|timesince }} ago</p>
-        </div>
-      </li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <div class="mt-4 text-sm text-gray-500">
-      <p>No recent activity yet. Start by creating your first project!</p>
-    </div>
-    {% endif %}
+  {% if projects %}
+  <div class="divide-y divide-[#e3e2de] border-t border-[#e3e2de]">
+    {% for p in projects %}
+    <a href="{% url 'projects_detail' pk=p.obj.pk %}" class="flex items-center gap-4 py-3 hover:bg-[#f7f6f3] -mx-2 px-2 rounded transition-colors">
+      <div class="flex-1 min-w-0">
+        <div class="text-[14px] font-medium text-[#37352f] truncate">{{ p.obj.name }}</div>
+        <div class="text-[12px] text-[#787774] mt-0.5">Updated {{ p.obj.updated_at|timesince }} ago</div>
+      </div>
+
+      <!-- Phase -->
+      <span class="shrink-0 inline-flex items-center gap-1.5 text-[12px] text-[#787774]">
+        <span class="h-2 w-2 rounded-full
+          {% if p.phase == 'complete' %}bg-[#4dab9a]
+          {% elif p.phase == 'needs_attention' %}bg-[#eb5757]
+          {% elif p.phase == 'automating' %}bg-[#8b6834]
+          {% elif p.phase == 'testing' %}bg-[#9065b0]
+          {% elif p.phase == 'drafted' %}bg-[#dfab01]
+          {% else %}bg-[#e3e2de]
+          {% endif %}"></span>
+        {% if p.phase == 'complete' %}Complete
+        {% elif p.phase == 'needs_attention' %}Needs attention
+        {% elif p.phase == 'automating' %}Running
+        {% elif p.phase == 'testing' %}Testing
+        {% elif p.phase == 'drafted' %}Drafted
+        {% elif p.phase == 'reviewing' %}Reviewing
+        {% elif p.phase == 'starting' %}Starting
+        {% else %}New
+        {% endif %}
+      </span>
+
+      <!-- Counts -->
+      <div class="shrink-0 flex items-center gap-4 text-[12px] text-[#787774] tabular-nums">
+        <span>{{ p.lit_count }} sources</span>
+        <span>{% if p.hyp_total %}{{ p.hyp_tested }}/{{ p.hyp_total }} hyp{% else %}&mdash;{% endif %}</span>
+        <span>{% if p.sim_total %}{{ p.sim_success }}/{{ p.sim_total }} exp{% else %}&mdash;{% endif %}</span>
+      </div>
+    </a>
+    {% endfor %}
   </div>
-  <div class="rounded-lg border border-gray-200 bg-white p-5">
-    <div class="flex items-center justify-between">
-      <h3 class="text-sm font-semibold">Your active projects</h3>
-      <a href="{% url 'projects_list' %}" class="text-xs text-gray-500 hover:text-gray-700">View all</a>
-    </div>
-    {% if active_projects %}
-    <ul class="mt-3 divide-y divide-gray-100">
-      {% for p in active_projects %}
-      <li class="py-3">
-        <a href="{% url 'projects_detail' p.pk %}" class="block">
-          <p class="text-sm font-medium text-gray-900 truncate">{{ p.name }}</p>
-          <div class="mt-1 flex items-center gap-3 text-xs text-gray-500">
-            <span>{{ p.hypotheses_count }} hypotheses</span>
-            <span>·</span>
-            <span>{{ p.experiments_count }} experiments</span>
-            <span>·</span>
-            <span>{{ p.citations_count }} citations</span>
-          </div>
-        </a>
-      </li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <div class="mt-2 text-sm text-gray-500">
-      <p>No active projects yet.</p>
-      <a href="{% url 'projects_create' %}" class="mt-2 inline-flex items-center rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium hover:bg-gray-50">Create your first project</a>
-    </div>
-    {% endif %}
+  {% else %}
+  <!-- Empty state -->
+  <div class="mt-8 py-12 text-center">
+    <h2 class="text-[18px] font-semibold text-[#37352f]">Start your first research project</h2>
+    <p class="mt-2 text-[14px] text-[#787774] max-w-md mx-auto">Describe your question. Lumen will search the literature, propose hypotheses, run experiments, and draft your paper.</p>
+    <a href="{% url 'projects_create' %}" class="mt-5 inline-block rounded bg-[#8b6834] px-4 py-2 text-[14px] font-medium text-white hover:bg-[#7a5a2d] transition">Create project</a>
   </div>
+  {% endif %}
 </div>
 {% endblock %}
-
-

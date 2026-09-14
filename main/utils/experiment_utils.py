@@ -50,12 +50,22 @@ def run_python_simulation(simulation, timeout_seconds: int = 30, python_executab
     - Expects `simulation.code` to be Python code string.
     - Provides globals: `params` (dict from simulation.parameters) and `record_result(data)`.
     - Captures stdout/stderr, exit code; writes `result_json` if `record_result` is called.
+
+    Security: The subprocess is sandboxed by stripping sensitive environment
+    variables, restricting HOME/TMPDIR to the temp directory, and using '--'
+    to prevent flag injection. The timeout is configurable via the SIM_TIMEOUT
+    environment variable.
     """
 
     from main.models import SimulationStatus  # local import to avoid cycles
 
     if python_executable is None:
         python_executable = sys.executable
+
+    # Allow the timeout to be configured via environment variable
+    default_timeout = int(os.getenv('SIM_TIMEOUT', '30'))
+    if timeout_seconds == 30:
+        timeout_seconds = default_timeout
 
     # Mark as running
     simulation.status = SimulationStatus.RUNNING
@@ -73,9 +83,16 @@ def run_python_simulation(simulation, timeout_seconds: int = 30, python_executab
         env["SIM_PARAMS_JSON"] = json.dumps(simulation.parameters or {})
         env["SIM_RESULT_PATH"] = result_path
 
+        # Strip sensitive env vars for sandboxing
+        for key in ['OPENAI_API_KEY', 'SECRET_KEY', 'DATABASE_URL', 'SEMANTIC_SCHOLAR_API_KEY']:
+            env.pop(key, None)
+        env['HOME'] = temp_dir
+        env['TMPDIR'] = temp_dir
+
         try:
+            # Use '--' to prevent flag injection in the python command
             proc = subprocess.run(
-                [python_executable, wrapper_path],
+                [python_executable, '--', wrapper_path],
                 cwd=temp_dir,
                 env=env,
                 capture_output=True,

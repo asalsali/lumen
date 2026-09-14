@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-import inspect
 from typing import List, Optional
 
 from asgiref.sync import async_to_sync, sync_to_async
 from pydantic import BaseModel, Field
 
 from agents import Runner
+
+from ..retry import run_with_retry
 
 from main.models import Project
 
@@ -50,13 +51,12 @@ class ProjectChatServiceManager:
             role = "assistant" if t.role == "assistant" else "user"
             input_items.append({"role": role, "content": t.content})
 
-        result = self.runner.run(
+        result = await run_with_retry(
+            self.runner,
             chat_agent,
             input=input_items,
             max_turns=50,
         )
-        if inspect.isawaitable(result):
-            result = await result
 
         reply: ChatAssistantReply = result.final_output  # type: ignore
         return ChatResponse(

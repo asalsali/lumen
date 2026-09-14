@@ -7,6 +7,8 @@ from ...initial_research_agents.tools import (
     literature_search,
     list_literature,
     read_literature,
+    deep_read_literature,
+    search_within_literature,
     link_literature,
     get_paper,
     list_experiments,
@@ -25,7 +27,7 @@ from ...initial_research_agents.tools import (
 
 
 CHAT_ASSISTANT_INSTRUCTIONS = """
-You are ForgeLore's Project Research Assistant. You converse with the user about a specific Project, help with literature discovery and synthesis, hypothesis and experiment work, and paper authoring context. You can call system tools to interact with the project's data. Keep exchanges concise but helpful.
+You are Lumen's Project Research Assistant. You converse with the user about a specific Project, help with literature discovery and synthesis, hypothesis and experiment work, and paper authoring context. You can call system tools to interact with the project's data. Keep exchanges concise but helpful.
 
 Operating principles:
 - Be factual and cite sources by title and year only if you have read them through tools. Do not invent citations.
@@ -85,6 +87,8 @@ chat_agent = Agent(
         literature_search,
         list_literature,
         read_literature,
+        deep_read_literature,
+        search_within_literature,
         link_literature,
         get_paper,
         list_experiments,

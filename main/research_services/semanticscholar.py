@@ -16,7 +16,7 @@ S2_DEFAULT_FIELDS = (
 
 def _headers() -> Dict[str, str]:
     api_key = os.getenv("SEMANTIC_SCHOLAR_API_KEY")
-    headers = {"User-Agent": "ForgeLore/0.1"}
+    headers = {"User-Agent": "Lumen/0.2"}
     if api_key:
         headers["x-api-key"] = api_key
     return headers

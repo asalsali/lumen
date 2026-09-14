@@ -71,7 +71,7 @@ async def search_doaj(client: HttpClient, query: str, page: int = 1, page_size: 
     params: Dict[str, Any] = {"page": page, "pageSize": page_size}
     if sort:
         params["sort"] = sort
-    data = await client.get_json(url, params=params, headers={"User-Agent": "ForgeLore/0.1"})
+    data = await client.get_json(url, params=params, headers={"User-Agent": "Lumen/0.2"})
     results: List[PaperRecord] = []
     for item in data.get("results", []) or []:
         rec = _normalize_article(item)

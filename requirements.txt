@@ -7,3 +7,10 @@ tqdm
 httpx
 pypdf
 gunicorn
+djangorestframework
+dj-database-url
+psycopg2-binary
+django-q2
+pytest
+pytest-django
+factory_boy

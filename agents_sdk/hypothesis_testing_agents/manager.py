@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from typing import List
 import asyncio
-import inspect
 from asgiref.sync import async_to_sync, sync_to_async
 from pydantic import BaseModel
 from agents import Runner
+
+from ..retry import run_with_retry
 
 from main.models import Project, Hypothesis, HypothesisStatus as DjangoHypothesisStatus
 
@@ -66,11 +67,8 @@ class HypothesisTestingServiceManager:
         return async_to_sync(go)()
 
     async def _run(self, *args, **kwargs):
-        """Call Runner.run and support both async and sync mocks."""
-        result = self.runner.run(*args, **kwargs)
-        if inspect.isawaitable(result):
-            return await result
-        return result
+        """Call Runner.run with automatic retry on rate-limit errors."""
+        return await run_with_retry(self.runner, *args, **kwargs)
 
     async def _process_hypothesis(self, project: Project, h) -> HypothesisTestResult:
         # 1) Research background

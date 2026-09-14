@@ -75,7 +75,7 @@ async def search_openalex(client: HttpClient, query: str, per_page: int = 25, pa
     params: Dict[str, Any] = {"search": query, "per_page": per_page, "page": page}
     if mailto:
         params["mailto"] = mailto
-    data = await client.get_json(url, params=params, headers={"User-Agent": "ForgeLore/0.1"})
+    data = await client.get_json(url, params=params, headers={"User-Agent": "Lumen/0.2"})
     results: List[PaperRecord] = []
     for work in data.get("results", []) or []:
         rec = _to_record(work)
@@ -89,7 +89,7 @@ async def fetch_openalex_by_id(client: HttpClient, work_id: str, mailto: Optiona
     params: Dict[str, Any] = {}
     if mailto:
         params["mailto"] = mailto
-    work = await client.get_json(url, params=params, headers={"User-Agent": "ForgeLore/0.1"})
+    work = await client.get_json(url, params=params, headers={"User-Agent": "Lumen/0.2"})
     return _to_record(work)
 
 

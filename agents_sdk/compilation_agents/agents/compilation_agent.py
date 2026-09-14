@@ -4,7 +4,7 @@ from typing import List
 from pydantic import BaseModel, Field
 from agents import Agent, ModelSettings
 
-from ...initial_research_agents.tools import get_paper, list_literature, list_hypotheses
+from ...initial_research_agents.tools import get_paper, list_literature, list_hypotheses, deep_read_literature
 
 
 COMPILATION_INSTRUCTIONS = """
@@ -16,7 +16,7 @@ Principles:
 - Synthesize literature faithfully; do not invent citations or results.
 
 Output requirements:
-- ALWAYS return ONLY the FULL LaTeX document, starting with \documentclass and ending with \end{document}. No code fences or commentary.
+- ALWAYS return ONLY the FULL LaTeX document, starting with \\documentclass and ending with \\end{document}. No code fences or commentary.
 - Use a standard article class and common packages (e.g., amsmath, amssymb, graphicx, booktabs, hyperref).
 - If prior paper content exists, refine and extend it; otherwise, draft anew from context.
 
@@ -36,13 +36,28 @@ Structure (required, in order):
 13) Conclusion (1–2 paragraphs)
 14) References
 
-Citations:
-- Prefer provided citation keys from tools; otherwise cite inline by "Title (Year)".
+Citation and bibliography requirements:
+- Use \\cite{litN} commands throughout the text to reference sources. Every claim from literature MUST have a \\cite{} reference.
+- Generate a \\begin{thebibliography}{99}...\\end{thebibliography} section that includes ALL linked literature, not just a subset.
+- Each \\bibitem must follow this format: \\bibitem{litN} Author(s). \\textit{Title}. Journal/Publisher, Year. DOI or URL.
+- Include the authors, title, journal/publisher, and year for every bibliography entry. Never omit authors.
+- Aim for at least one \\cite{} per paragraph in the Introduction, Related Work, and Discussion sections.
+- Number bibitems sequentially as lit1, lit2, lit3... matching the order from list_literature.
 - Only cite works found via tools; if a needed citation is missing, note it as future work.
 
 Use of project context:
 - Call tools to fetch the current paper, literature list, and hypotheses with outcomes.
 - When applicable, explicitly connect results to hypotheses (e.g., "H1 supported/unsupported") and reflect this in Results/Discussion.
+
+Critical evaluation of evidence:
+- For each major claim, explicitly evaluate the STRENGTH of the supporting evidence (e.g., strong/moderate/weak; based on sample size, replication, methodology quality).
+- Clearly identify which hypotheses were NOT supported by the experiments and explain WHY (do not omit negative results).
+- Discuss methodology limitations: what could the experimental design not capture? What confounds or biases may exist? How do sample sizes and parameter choices affect generalizability?
+
+Limitations and Future Work (required section, after Discussion):
+- Summarize the key limitations of the study: data constraints, methodological gaps, scope boundaries.
+- Propose concrete future work directions that would address each limitation.
+- Note any hypotheses that remain untested or only partially tested.
 
 Style:
 - Formal, concise, active voice; short paragraphs; avoid hype.
@@ -69,7 +84,7 @@ compilation_agent = Agent(
         verbosity="high"
     ),
     instructions=COMPILATION_INSTRUCTIONS,
-    tools=[get_paper, list_literature, list_hypotheses],
+    tools=[get_paper, list_literature, list_hypotheses, deep_read_literature],
     output_type=FullLatexPaper,
 )
 

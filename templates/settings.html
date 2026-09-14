@@ -1,42 +1,77 @@
 {% extends 'base.html' %}
 
+{% block title %}Lumen — Settings{% endblock %}
+
 {% block page_header %}
-<div class="mb-6">
-  <h1 class="text-2xl font-bold text-gray-900">Settings</h1>
-  <p class="mt-1 text-sm text-gray-600">Manage your account settings and preferences.</p>
-</div>
+<h1 class="text-[36px] font-serif font-bold text-[#2d2a26] tracking-[-0.02em]">Settings</h1>
 {% endblock %}
 
 {% block content %}
-<div class="bg-white shadow rounded-lg">
-  <div class="px-4 py-5 sm:p-6">
-    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Profile Information</h3>
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Username</label>
-        <div class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500">
-          {{ user.username }}
-        </div>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Email</label>
-        <div class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500">
-          {{ user.email|default:"Not provided" }}
-        </div>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Date Joined</label>
-        <div class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500">
-          {{ user.date_joined|date:"F j, Y" }}
-        </div>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Last Login</label>
-        <div class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500">
-          {{ user.last_login|date:"F j, Y g:i A"|default:"Never" }}
-        </div>
-      </div>
+<!-- Profile information -->
+<div class="mt-8 max-w-[560px]">
+  <h3 class="text-[18px] font-semibold text-[#37352f]">Profile</h3>
+  <div class="mt-4 space-y-3 text-[14px]">
+    <div class="flex items-center justify-between py-2 border-b border-[#e3e2de]">
+      <span class="text-[#787774]">Username</span>
+      <span class="text-[#37352f]">{{ user.username }}</span>
+    </div>
+    <div class="flex items-center justify-between py-2 border-b border-[#e3e2de]">
+      <span class="text-[#787774]">Joined</span>
+      <span class="text-[#37352f]">{{ user.date_joined|date:"F j, Y" }}</span>
+    </div>
+    <div class="flex items-center justify-between py-2 border-b border-[#e3e2de]">
+      <span class="text-[#787774]">Last login</span>
+      <span class="text-[#37352f]">{{ user.last_login|date:"F j, Y g:i A"|default:"Never" }}</span>
     </div>
   </div>
+</div>
+
+<!-- Email -->
+<div class="mt-10 max-w-[560px]">
+  <h3 class="text-[18px] font-semibold text-[#37352f]">Email address</h3>
+  <form method="post" class="mt-4">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="update_email">
+    <div>
+      <label for="email" class="block text-[13px] text-[#787774] mb-1">Email</label>
+      <input type="email" name="email" id="email" value="{{ user.email }}" placeholder="your@email.com"
+             class="w-full rounded border border-[#e3e2de] bg-white px-3 py-2 text-[14px] text-[#37352f] placeholder:text-[#787774] focus:border-[#8b6834] focus:ring-1 focus:ring-[#8b6834]/20 focus:outline-none transition">
+    </div>
+    <div class="mt-3 flex items-center gap-3">
+      <button type="submit" class="rounded bg-[#8b6834] px-3 py-1.5 text-[13px] font-medium text-white hover:bg-[#7a5a2d] transition">Save</button>
+      {% if email_saved %}
+        <span class="text-[13px] text-[#4dab9a]">Saved</span>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<!-- Password -->
+<div class="mt-10 max-w-[560px]">
+  <h3 class="text-[18px] font-semibold text-[#37352f]">Change password</h3>
+  <form method="post" class="mt-4">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="change_password">
+    <div class="space-y-4">
+      {% for field in password_form %}
+      <div>
+        <label for="{{ field.id_for_label }}" class="block text-[13px] text-[#787774] mb-1">{{ field.label }}</label>
+        <input type="password" name="{{ field.html_name }}" id="{{ field.id_for_label }}"
+               class="w-full rounded border border-[#e3e2de] bg-white px-3 py-2 text-[14px] text-[#37352f] placeholder:text-[#787774] focus:border-[#8b6834] focus:ring-1 focus:ring-[#8b6834]/20 focus:outline-none transition">
+        {% if field.errors %}
+          {% for error in field.errors %}
+            <p class="mt-1 text-[12px] text-[#eb5757]">{{ error }}</p>
+          {% endfor %}
+        {% endif %}
+        {% if field.help_text %}
+          <p class="mt-1 text-[12px] text-[#787774]">{{ field.help_text }}</p>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="mt-3">
+      <button type="submit" class="rounded bg-[#8b6834] px-3 py-1.5 text-[13px] font-medium text-white hover:bg-[#7a5a2d] transition">Change password</button>
+    </div>
+  </form>
 </div>
 {% endblock %}

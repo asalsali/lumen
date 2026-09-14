@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Lumen — Search{% if q %}: {{ q }}{% endif %}{% endblock %}
+
+{% block page_header %}
+<div>
+  <h1 class="text-[36px] font-serif font-bold text-[#2d2a26] tracking-[-0.02em]">Search</h1>
+  {% if q %}
+    <p class="mt-1 text-[13px] text-[#787774]">{{ total }} result{{ total|pluralize }} for "{{ q }}"</p>
+  {% else %}
+    <p class="mt-1 text-[13px] text-[#787774]">Enter a query to search across your projects, literature, hypotheses, and experiments.</p>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+{% if q and total == 0 %}
+  <div class="mt-8 py-12 text-center">
+    <p class="text-[14px] text-[#787774]">No results found for "{{ q }}".</p>
+    <p class="mt-1 text-[13px] text-[#787774]">Try different keywords or check your spelling.</p>
+  </div>
+{% endif %}
+
+{% if results.projects %}
+<div class="mt-6">
+  <h2 class="text-[12px] font-semibold text-[#787774] uppercase tracking-wide mb-2">Projects</h2>
+  <div class="divide-y divide-[#e3e2de] border-t border-b border-[#e3e2de]">
+    {% for project in results.projects %}
+    <a href="{% url 'projects_detail' pk=project.pk %}" class="flex items-center justify-between py-3 hover:bg-[#f7f6f3] -mx-2 px-2 rounded transition-colors">
+      <div>
+        <span class="text-[14px] font-medium text-[#37352f]">{{ project.name }}</span>
+        {% if project.abstract %}
+          <p class="text-[13px] text-[#787774] line-clamp-1">{{ project.abstract|truncatewords:20 }}</p>
+        {% endif %}
+      </div>
+      <span class="shrink-0 ml-4 text-[12px] text-[#787774]">{{ project.status }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if results.literature %}
+<div class="mt-6">
+  <h2 class="text-[12px] font-semibold text-[#787774] uppercase tracking-wide mb-2">Literature</h2>
+  <div class="divide-y divide-[#e3e2de] border-t border-b border-[#e3e2de]">
+    {% for lit in results.literature %}
+    <div class="py-3">
+      <span class="text-[14px] font-medium text-[#37352f]">{{ lit.title }}</span>
+      {% if lit.authors %}
+        <p class="text-[12px] text-[#787774]">{{ lit.authors|truncatewords:12 }}</p>
+      {% endif %}
+      <div class="mt-1 flex items-center gap-2 text-[12px] text-[#787774]">
+        {% if lit.year %}<span>{{ lit.year }}</span>{% endif %}
+        {% if lit.url %}<a href="{{ lit.url }}" target="_blank" rel="noopener" class="text-[#8b6834] hover:underline">View source</a>{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if results.hypotheses %}
+<div class="mt-6">
+  <h2 class="text-[12px] font-semibold text-[#787774] uppercase tracking-wide mb-2">Hypotheses</h2>
+  <div class="divide-y divide-[#e3e2de] border-t border-b border-[#e3e2de]">
+    {% for hyp in results.hypotheses %}
+    <a href="{% url 'projects_detail' pk=hyp.project.pk %}?tab=hypotheses" class="block py-3 hover:bg-[#f7f6f3] -mx-2 px-2 rounded transition-colors">
+      <span class="text-[14px] font-medium text-[#37352f]">{{ hyp.title }}</span>
+      <p class="text-[12px] text-[#787774]">{{ hyp.project.name }}</p>
+      {% if hyp.statement %}
+        <p class="text-[13px] text-[#787774] line-clamp-2 mt-0.5">{{ hyp.statement|truncatewords:25 }}</p>
+      {% endif %}
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if results.experiments %}
+<div class="mt-6">
+  <h2 class="text-[12px] font-semibold text-[#787774] uppercase tracking-wide mb-2">Experiments</h2>
+  <div class="divide-y divide-[#e3e2de] border-t border-b border-[#e3e2de]">
+    {% for sim in results.experiments %}
+    <a href="{% url 'experiments_detail' pk=sim.pk %}" class="block py-3 hover:bg-[#f7f6f3] -mx-2 px-2 rounded transition-colors">
+      <span class="text-[14px] font-medium text-[#37352f]">{{ sim.name }}</span>
+      <p class="text-[12px] text-[#787774]">{{ sim.project.name }}</p>
+      {% if sim.description %}
+        <p class="text-[13px] text-[#787774] line-clamp-1 mt-0.5">{{ sim.description|truncatewords:20 }}</p>
+      {% endif %}
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,40 +1,35 @@
 {% extends "base.html" %}
 
-{% block title %}ForgeLore — Projects{% endblock %}
+{% block title %}Lumen — Projects{% endblock %}
 
 {% block page_header %}
 <div class="flex items-center justify-between">
-  <div>
-    <h1 class="text-xl font-semibold tracking-tight">Projects</h1>
-    <p class="mt-1 text-sm text-gray-600">Your research efforts and their artifacts.</p>
-  </div>
-  <a href="{% url 'projects_create' %}" class="inline-flex items-center rounded-md bg-brand-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-700">New project</a>
+  <h1 class="text-[36px] font-serif font-bold text-[#2d2a26] tracking-[-0.02em]">Projects</h1>
+  <a href="{% url 'projects_create' %}" class="text-[14px] text-[#8b6834] hover:underline">+ New project</a>
 </div>
 {% endblock %}
 
 {% block content %}
-<div class="rounded-lg border border-gray-200 bg-white">
-  <table class="min-w-full text-sm">
-    <thead class="bg-gray-50 text-gray-600">
-      <tr>
-        <th class="px-4 py-2 text-left font-semibold">Name</th>
-        <th class="px-4 py-2 text-left font-semibold">Status</th>
-        <th class="px-4 py-2 text-left font-semibold">Updated</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for p in projects %}
-      <tr class="border-t border-gray-100">
-        <td class="px-4 py-2"><a href="{% url 'projects_detail' pk=p.pk %}" class="text-brand-700 hover:underline">{{ p.name }}</a></td>
-        <td class="px-4 py-2">{{ p.status }}</td>
-        <td class="px-4 py-2">{{ p.updated_at|date:"Y-m-d H:i" }}</td>
-      </tr>
-      {% empty %}
-      <tr class="border-t border-gray-100"><td colspan="3" class="px-4 py-4 text-gray-500">No projects yet.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  </div>
+{% if projects %}
+<div class="mt-6 divide-y divide-[#e3e2de] border-t border-b border-[#e3e2de]">
+  {% for p in projects %}
+  <a href="{% url 'projects_detail' pk=p.pk %}" class="flex items-center gap-4 py-3 hover:bg-[#f7f6f3] -mx-2 px-2 rounded transition-colors">
+    <div class="flex-1 min-w-0">
+      <span class="text-[14px] font-medium text-[#37352f] truncate block">{{ p.name }}</span>
+      <span class="text-[12px] text-[#787774]">Updated {{ p.updated_at|timesince }} ago</span>
+    </div>
+    <span class="shrink-0 inline-flex items-center gap-1.5 text-[12px] text-[#787774]">
+      <span class="h-2 w-2 rounded-full {% if p.status == 'active' %}bg-[#4dab9a]{% elif p.status == 'completed' %}bg-[#8b6834]{% else %}bg-[#e3e2de]{% endif %}"></span>
+      {{ p.status }}
+    </span>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="mt-12 py-12 text-center">
+  <h3 class="text-[18px] font-semibold text-[#37352f]">No projects yet</h3>
+  <p class="mt-2 text-[14px] text-[#787774]">Get started by creating your first research project.</p>
+  <a href="{% url 'projects_create' %}" class="mt-5 inline-block rounded bg-[#8b6834] px-4 py-2 text-[14px] font-medium text-white hover:bg-[#7a5a2d] transition">Create project</a>
+</div>
+{% endif %}
 {% endblock %}
-
-

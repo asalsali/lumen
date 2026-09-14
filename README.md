@@ -1,142 +1,132 @@
-## ForgeLore — The Copilot for Science [![ForgeLore](https://img.shields.io/badge/Visit-FORGELORE.CA-blue?logo=forge&logoColor=white&style=for-the-badge)](https://forgelore.ca)
+# Lumen
 
-ForgeLore is the Copilot for science—an autonomous researcher that searches literature, tests ideas, and drafts papers, turning months of R&D into days.
+Turn a research question into a cited paper.
 
-![ForgeLore](static/images/forge_lore_logo.png)
----
+Lumen is an AI research platform that automates the full academic research pipeline: literature search, hypothesis generation, experiment execution, and manuscript compilation. It uses coordinated AI agent swarms (GPT-5) to produce publication-ready LaTeX papers grounded in real sources and validated through code experiments.
 
-## What it does (today)
-- **Parallel literature search**: Query arXiv, DOAJ, Semantic Scholar, and OpenAlex together. Link results to a project as citations, with open‑access PDFs detected where possible.
-- **Project workspace**: Organize research as Projects with a one‑to‑one Paper plus Hypotheses, Experiments, Notes, and Citations.
-- **Paper drafting in LaTeX**: Edit raw LaTeX with live preview. One‑click Recompile uses a compilation agent to regenerate a coherent draft from project context.
-- **Code experiments**: Run small simulations in Python with parameters; capture stdout/stderr and persist structured `result_json`.
-- **Autonomous pipeline**: Background automation chains Initial Research → Initial Draft → Hypothesis Testing → Compilation. Task status is visible in the UI.
-- **Voice to text helper**: Optional audio transcription endpoint to quickly capture project descriptions.
-- **Clean, enterprise UI**: Server‑rendered Django + Tailwind with a left sidebar workspace and professional tone.
+## What it does
 
----
+1. **Describe your question** — Write a research topic in plain English
+2. **Literature is searched** — Agents query arXiv, Semantic Scholar, DOAJ, and OpenAlex in parallel. PDFs are downloaded and full-text indexed.
+3. **Hypotheses are tested** — AI generates testable claims from the literature, writes Python experiments (Monte Carlo simulations, statistical tests, sensitivity analyses), runs them in a sandbox, and evaluates results
+4. **Paper is compiled** — Complete LaTeX manuscript with `\cite{}` references, structured sections, and full bibliography
 
-## How it works
+## Architecture
 
-![Architecture](static/images/fulldiagram.png)
-
-### Research services
-Async provider modules normalize responses to a common `PaperRecord` and run in parallel via an aggregator.
-
-- arXiv (`main/research_services/arxiv.py`)
-- DOAJ (`main/research_services/doaj.py`)
-- Semantic Scholar (`main/research_services/semanticscholar.py`)
-- OpenAlex (`main/research_services/openalex.py`)
-
-Example:
-```python
-from main.research_services import HttpClient, search_all
-
-async def run_query(q: str):
-    client = HttpClient()
-    try:
-        return await search_all(client, query=q, limit_per_source=10, mailto="you@example.com")
-    finally:
-        await client.aclose()
+```
+User creates project
+    ├── InitialResearchServiceManager
+    │   ├── Formalizer Agent (improves abstract)
+    │   ├── Literature Reviewer Agent (multi-source search + linking)
+    │   ├── Literature Summarizer Agent (synthesizes findings)
+    │   └── Hypothesizer Agent (proposes testable hypotheses)
+    ├── PaperDraftServiceManager
+    │   └── Drafting Agent (abstract + literature review)
+    ├── HypothesisTestingServiceManager
+    │   ├── Research Agent (background research per hypothesis)
+    │   ├── Sim Decider Agent (should we run an experiment?)
+    │   ├── Simulation Agent (writes + executes Python code)
+    │   └── Answer Agent (evaluates: supported/rejected/inconclusive)
+    └── CompilationServiceManager
+        └── Compilation Agent (full LaTeX manuscript)
 ```
 
-Environment: `OPENALEX_MAILTO` (recommended), `SEMANTIC_SCHOLAR_API_KEY` (optional). HTTP retries/backoff are built in.
+**11 specialized AI agents** coordinate across 4 pipeline stages. Each agent has specific tools, output schemas, and reasoning configurations. The pipeline runs automatically on project creation and can be re-triggered per-stage.
 
-### Agents and automation
-Agent managers live under `agents_sdk/` and are orchestrated from the Project page.
+## Tech stack
 
-- `InitialResearchServiceManager`: formalizes abstract, searches and summarizes literature, proposes hypotheses.
-- `PaperDraftServiceManager`: generates initial draft when the Paper is empty.
-- `HypothesisTestingServiceManager`: researches background, decides if simulation is needed, optionally runs a toy experiment, then answers.
-- `CompilationServiceManager`: compiles a full LaTeX manuscript and persists changes if different.
+- **Backend**: Django 5.2, Django REST Framework, Django-Q2 (task queue)
+- **AI**: OpenAI Agents SDK, GPT-5 with extended reasoning
+- **Literature**: arXiv API, Semantic Scholar, DOAJ, OpenAlex
+- **Database**: SQLite (dev) / PostgreSQL (production via `DATABASE_URL`)
+- **Experiments**: Sandboxed Python subprocess execution with resource limits
+- **Frontend**: Server-rendered Django templates, Tailwind CSS, CodeMirror 6, Chart.js
 
-Automation runs as a background job with per‑task status (`initial_research`, `initial_draft`, `hypothesis_testing`, `compilation`).
+## Quick start
 
-### Application pages
-- **Dashboard**: KPIs, recent activity, quick actions.
-- **Projects**: list/create projects; optional PDF/TXT import and mic‑to‑text for descriptions.
-- **Project detail**: tabs for Overview, Paper (editor + preview), Literature, Experiments, Hypotheses, Notes, Automation.
-- **Literature search**: query providers in parallel and link results to a project.
-- **Experiments**: create, run, and inspect code‑based simulations.
-
----
-
-## Quickstart
-
-Prerequisites: Python 3.10+
-
-### Windows PowerShell
-```powershell
-py -m venv venv
-./venv/Scripts/Activate.ps1
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver
-```
-
-### macOS/Linux
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver
-```
+git clone https://github.com/asalsali/lumen.git
+cd lumen
 
-optionally create a superuser for admin access
-```bash
+pip install -r requirements.txt
+
+cp .env.example .env
+# Edit .env and add your OPENAI_API_KEY
+
+python manage.py migrate
 python manage.py createsuperuser
+python manage.py runserver
 ```
 
-Open `http://127.0.0.1:8000/`.
+Open http://localhost:8000, sign up, create a project, and watch the agents work.
 
----
+## Environment variables
 
-## Usage
-1. Create a Project (optionally upload a PDF/TXT draft to seed the Paper).
-2. Use Literature Search to find papers; use “Link to project” to add citations.
-3. Add Hypotheses and create Experiments; run to capture results.
-4. Edit the Paper and click Recompile to regenerate a LaTeX draft.
-5. Check over automation status on the Automation tab as it works it way through the pipeline!
-6. Optionally chat with the project assistant that is a supercharged ai agent system that has access to the project's data and can help you with your research further.
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `OPENAI_API_KEY` | Yes | OpenAI API key with GPT-5 access |
+| `SECRET_KEY` | No | Django secret key (auto-generated in dev) |
+| `DEBUG` | No | `True` for development (default) |
+| `DATABASE_URL` | No | PostgreSQL connection string (uses SQLite if unset) |
+| `OPENALEX_MAILTO` | No | Email for OpenAlex polite pool |
+| `SEMANTIC_SCHOLAR_API_KEY` | No | Semantic Scholar API key for higher rate limits |
+| `SIM_TIMEOUT` | No | Experiment execution timeout in seconds (default: 120) |
 
----
+## Docker
 
-## Configuration
-- `DJANGO_SECRET_KEY`: set in production.
-- `DEBUG`: `True` (dev) / `False` (prod).
-- `ALLOWED_HOSTS`: production hostnames.
-- `OPENAI_API_KEY`: required for advanced agent features when enabled.
-- `OPENALEX_MAILTO`: polite use of OpenAlex.
-- `SEMANTIC_SCHOLAR_API_KEY`: optional.
+```bash
+docker-compose up --build
+```
 
----
+Three services: **web** (Django + Gunicorn), **db** (PostgreSQL 16), **worker** (Django-Q2 background tasks).
 
-## Repository layout
-- `forgelore/`: Django project (settings, ASGI/WSGI).
-- `main/`: app models, views, `research_services/`, utils, and tests.
-- `templates/`: server‑rendered UI (e.g., `base.html`, `dashboard.html`, `projects_detail.html`).
-- `static/`: images and assets.
-- `agents_sdk/`: domain‑specific agent managers and tools.
-- `openai-agents-python/`: vendored OpenAI Agents SDK and examples.
+## API
 
----
+REST API at `/api/` with endpoints for all resources:
 
-## Roadmap
-- Expand provider features and OA filters/imports.
-- Richer experiment runners and result visualization.
-- Section‑aware drafting with numbered citations and references.
-- Full autonomous multi‑turn loop with approvals.
+```
+GET/POST  /api/projects/
+GET/POST  /api/papers/
+GET       /api/literature/
+GET       /api/hypotheses/
+GET       /api/simulations/
+GET       /api/chat-messages/
+```
 
----
+Session or Basic Auth.
 
-## Contributing
-Please read `CONTRIBUTING.md` for setup, style, and PR guidelines.
+## Project structure
 
----
+```
+├── agents_sdk/                    # 11 AI agents across 5 systems
+│   ├── initial_research_agents/   # Search, summarize, hypothesize
+│   ├── hypothesis_testing_agents/ # Research, decide, simulate, evaluate
+│   ├── paper_draft_agents/        # Draft abstract + lit review
+│   ├── compilation_agents/        # Full LaTeX compilation
+│   └── project_chat_agents/       # Interactive assistant (19 tools)
+├── main/                          # Django app (15 models, 30+ views)
+│   ├── models.py
+│   ├── views.py
+│   ├── api_views.py               # DRF viewsets
+│   ├── serializers.py
+│   ├── tasks.py                   # Background pipeline with retries
+│   ├── experiment_templates.py
+│   ├── utils/
+│   │   ├── experiment_utils.py    # Sandboxed code execution
+│   │   └── pdf_ingestion.py       # PDF download + text extraction
+│   └── tests/                     # 30 tests (pytest + factory_boy)
+├── templates/                     # Server-rendered UI
+├── Dockerfile
+├── docker-compose.yml
+└── requirements.txt
+```
 
-## Acknowledgements
-- arXiv, DOAJ, Semantic Scholar, OpenAlex
-- OpenAI Agents SDK
+## Tests
 
+```bash
+pytest main/tests/ -v
+```
 
+## License
+
+MIT

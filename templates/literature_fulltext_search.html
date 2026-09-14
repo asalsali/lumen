@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Lumen — Full-text Search{% endblock %}
+
+{% block page_header %}
+<div>
+  <h1 class="font-display text-[28px] text-warm-900">Full-text search</h1>
+  <p class="mt-1 text-[13px] text-warm-500">Search within the full text of ingested literature PDFs.</p>
+</div>
+{% endblock %}
+
+{% block content %}
+<form method="get" action="" class="mt-6 rounded-2xl bg-white border border-warm-200 p-5">
+  <div class="flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
+    <div class="flex-1">
+      <label for="q" class="block text-[11px] font-semibold text-warm-400 uppercase tracking-wider mb-1.5">Search query</label>
+      <div class="relative">
+        <input type="text" id="q" name="q" value="{{ q }}" placeholder="e.g. transformer attention mechanism" class="w-full rounded-xl border border-warm-200 bg-warm-50 pl-9 pr-3 py-2.5 text-[14px] text-warm-800 placeholder:text-warm-400 focus:bg-white focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 focus:outline-none transition-all">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.387a1 1 0 01-1.414 1.414l-4.387-4.387zM14 8a6 6 0 11-12 0 6 6 0 0112 0z" clip-rule="evenodd"/></svg>
+      </div>
+    </div>
+    {% if project_id %}
+      <input type="hidden" name="project" value="{{ project_id }}">
+    {% endif %}
+    <button type="submit" class="rounded-xl bg-accent-600 px-5 py-2.5 text-[13px] font-semibold text-white hover:bg-accent-700 shadow-sm transition">Search</button>
+  </div>
+  <div class="mt-3 flex items-center gap-3 text-[12px]">
+    <a href="{% url 'literature_search' %}{% if project_id %}?project={{ project_id }}{% endif %}" class="font-medium text-accent-600 hover:text-accent-700 transition">Back to literature search</a>
+  </div>
+</form>
+
+{% if q and q|length >= 3 %}
+  {% if results %}
+    <div class="mt-6 space-y-3">
+      <p class="text-[12px] font-medium text-warm-500">{{ results|length }} result{{ results|length|pluralize }} for "{{ q }}"</p>
+      {% for r in results %}
+        <div class="rounded-2xl bg-white border border-warm-200 p-5 hover:border-warm-300 transition">
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              {% if r.literature.url %}
+                <a href="{{ r.literature.url }}" target="_blank" rel="noopener" class="text-[14px] font-semibold text-warm-800 hover:text-accent-600 transition leading-snug">{{ r.literature.title }}</a>
+              {% else %}
+                <span class="text-[14px] font-semibold text-warm-800 leading-snug">{{ r.literature.title }}</span>
+              {% endif %}
+              {% if r.literature.authors %}
+                <p class="text-[12px] text-warm-400 mt-0.5 truncate">{{ r.literature.authors }}</p>
+              {% endif %}
+            </div>
+            {% if r.literature.year %}
+              <span class="text-[12px] text-warm-400 shrink-0 tabular-nums font-medium">{{ r.literature.year }}</span>
+            {% endif %}
+          </div>
+          {% if r.snippet %}
+            <div class="mt-3 rounded-xl bg-warm-50 border border-warm-100 px-4 py-3 text-[13px] text-warm-600 leading-relaxed break-words">{{ r.snippet }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="mt-8 text-center">
+      <div class="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-warm-100 mb-4">
+        <svg class="h-7 w-7 text-warm-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.387a1 1 0 01-1.414 1.414l-4.387-4.387zM14 8a6 6 0 11-12 0 6 6 0 0112 0z" clip-rule="evenodd"/></svg>
+      </div>
+      <h3 class="font-display text-[18px] text-warm-700">No results found</h3>
+      <p class="mt-1 text-[13px] text-warm-400 max-w-sm mx-auto">No ingested literature contains "{{ q }}". Try a different search term, or make sure PDFs have been ingested for your literature.</p>
+    </div>
+  {% endif %}
+{% elif q %}
+  <div class="mt-6 rounded-xl bg-amber-50 border border-amber-100 px-4 py-3 text-[13px] text-amber-700">Please enter at least 3 characters to search.</div>
+{% endif %}
+
+<script>
+// Highlight matching search terms in snippets
+document.addEventListener('DOMContentLoaded', function() {
+  const q = '{{ q|escapejs }}';
+  if (!q || q.length < 3) return;
+  document.querySelectorAll('.bg-warm-50.border-warm-100').forEach(function(el) {
+    const html = el.textContent;
+    const regex = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+    el.innerHTML = html.replace(regex, '<mark class="bg-accent-200 text-warm-900 rounded px-0.5">$1</mark>');
+  });
+});
+</script>
+{% endblock %}

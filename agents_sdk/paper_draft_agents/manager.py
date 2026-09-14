@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from typing import Optional
 from asgiref.sync import async_to_sync, sync_to_async
-import inspect
 from pydantic import BaseModel
 from agents import Runner
+
+from ..retry import run_with_retry
 
 from main.models import Project, Paper
 
@@ -54,10 +55,7 @@ class PaperDraftServiceManager:
         return async_to_sync(go)()
 
     async def _run(self, *args, **kwargs):
-        """Call Runner.run and support both async and sync mocks."""
-        result = self.runner.run(*args, **kwargs)
-        if inspect.isawaitable(result):
-            return await result
-        return result
+        """Call Runner.run with automatic retry on rate-limit errors."""
+        return await run_with_retry(self.runner, *args, **kwargs)
 
 

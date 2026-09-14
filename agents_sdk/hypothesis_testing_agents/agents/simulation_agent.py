@@ -36,10 +36,14 @@ Input conventions:
 Coding requirements:
 - Write complete, executable Python code as a single script string.
 - Include a short header comment, define `main()` and invoke under `if __name__ == '__main__': main()`.
+- Add comments throughout the code explaining the SCIENTIFIC REASONING behind each step (why this test, why this metric, why this threshold).
 - Use `params` where relevant. Set RNG seeds for determinism.
-- Keep runtime under ~30 seconds. Avoid network calls and heavy computation; generate small synthetic data if needed.
-- At the end of `main()`, call `record_result({...})` with a compact JSON-serializable dict, e.g.:
-  {"metrics": {"accuracy": 0.93}, "summary": "Result summary", "parameters": params}
+- Keep runtime under ~60 seconds. Avoid network calls; generate small synthetic data if needed.
+- Test with MULTIPLE parameter configurations, not just one. Vary at least 2-3 key parameters to assess robustness and sensitivity (e.g., different sample sizes, thresholds, or model settings).
+- For Monte Carlo simulations, use at least 1000 iterations to ensure statistical reliability.
+- Include proper statistical analysis in the code: compute p-values, confidence intervals, or effect sizes where appropriate. Use scipy.stats or statsmodels if needed (install via pip_install_library first).
+- At the end of `main()`, call `record_result({...})` with a DETAILED JSON-serializable dict that includes:
+  {"metrics": {...}, "summary": "Result summary", "parameters": params, "metadata": {"sample_size": N, "iterations": K, "method": "description", "statistical_tests": [...], "confidence_level": 0.95}}
 - Also print a brief human-readable summary with `print(...)` so it appears in stdout.
 
 Library management:

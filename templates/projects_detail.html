@@ -1,88 +1,90 @@
 {% extends "base.html" %}
 
-{% block title %}ForgeLore — Project{% endblock %}
+{% block title %}Lumen — {{ project.name }}{% endblock %}
 
 {% block page_header %}
 <div class="flex items-center justify-between">
-  <div>
-    <h1 class="text-xl font-semibold tracking-tight">{{ project.name }}</h1>
-    <p class="mt-1 text-sm text-gray-600">Status: {{ project.status }}</p>
+  <div class="flex items-center gap-3">
+    <a href="{% url 'projects_list' %}" class="h-8 w-8 rounded-xl bg-warm-100 flex items-center justify-center text-warm-500 hover:text-warm-700 hover:bg-warm-200 transition">
+      <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+    </a>
+    <div>
+      <h1 class="font-display text-[24px] text-warm-900">{{ project.name }}</h1>
+      <span class="inline-flex items-center rounded-full px-2 py-[2px] text-[10px] font-semibold uppercase tracking-wider mt-1 {% if project.status == 'active' %}bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200{% elif project.status == 'completed' %}bg-blue-50 text-blue-700 ring-1 ring-blue-200{% else %}bg-warm-100 text-warm-500 ring-1 ring-warm-200{% endif %}">{{ project.status }}</span>
+    </div>
   </div>
   <div class="flex items-center gap-2">
-    <a href="{% url 'experiments_create' %}" class="inline-flex items-center rounded-md border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50">New experiment</a>
-    <a href="{% url 'projects_detail' pk=project.pk %}?tab=notes" class="inline-flex items-center rounded-md border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50">Add note</a>
-    <a href="{% url 'projects_detail' pk=project.pk %}?tab=hypotheses" class="inline-flex items-center rounded-md border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50">Add hypothesis</a>
+    <a href="{% url 'experiments_create' %}" class="inline-flex items-center rounded-xl border border-warm-200 px-3.5 py-[7px] text-[13px] font-medium text-warm-600 hover:bg-warm-50 transition">New experiment</a>
+    <a href="{% url 'projects_export_paper' pk=project.pk %}" class="inline-flex items-center rounded-xl border border-warm-200 px-3.5 py-[7px] text-[13px] font-medium text-warm-600 hover:bg-warm-50 transition">Export .tex</a>
+    <form method="post" action="{% url 'projects_archive' pk=project.pk %}" class="inline">
+      {% csrf_token %}
+      <button type="submit" class="inline-flex items-center rounded-xl border border-amber-300 px-3.5 py-[7px] text-[13px] font-medium text-amber-600 hover:bg-amber-50 transition">Archive</button>
+    </form>
+    <form method="post" action="{% url 'projects_delete' pk=project.pk %}" class="inline">
+      {% csrf_token %}
+      <button type="submit" onclick="return confirm('Delete this project permanently?')" class="inline-flex items-center rounded-xl border border-red-300 px-3.5 py-[7px] text-[13px] font-medium text-red-600 hover:bg-red-50 transition">Delete</button>
+    </form>
   </div>
- </div>
+</div>
 {% endblock %}
 
 {% block content %}
-<div id="project-tabs" data-initial-tab="{{ initial_tab }}" class="space-y-4">
+<div id="project-tabs" data-initial-tab="{{ initial_tab }}" class="mt-6 space-y-4">
   <!-- Tabs -->
-  <nav class="rounded-lg border border-gray-200 bg-white px-2">
-    <div class="flex flex-wrap items-center gap-1">
-      <button type="button" data-tab="overview" class="tab-btn px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 aria-selected:bg-gray-100">Overview</button>
-      <button type="button" data-tab="paper" class="tab-btn px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900">Paper</button>
-      <button type="button" data-tab="literature" class="tab-btn px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900">Literature</button>
-      <button type="button" data-tab="experiments" class="tab-btn px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900">Experiments</button>
-      <button type="button" data-tab="hypotheses" class="tab-btn px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900">Hypotheses</button>
-      <button type="button" data-tab="notes" class="tab-btn px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900">Notes</button>
-      <button type="button" data-tab="automation" class="tab-btn px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900">Automation</button>
-      <button type="button" data-tab="assistant" class="tab-btn px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900">Assistant</button>
-    </div>
+  <nav class="flex flex-wrap items-center gap-1 border-b border-warm-200 pb-px">
+    <button type="button" data-tab="overview" class="tab-btn px-3.5 py-2 text-[13px] font-medium text-warm-400 hover:text-warm-700 border-b-2 border-transparent -mb-px transition-colors">Overview</button>
+    <button type="button" data-tab="paper" class="tab-btn px-3.5 py-2 text-[13px] font-medium text-warm-400 hover:text-warm-700 border-b-2 border-transparent -mb-px transition-colors">Paper</button>
+    <button type="button" data-tab="literature" class="tab-btn px-3.5 py-2 text-[13px] font-medium text-warm-400 hover:text-warm-700 border-b-2 border-transparent -mb-px transition-colors">Literature</button>
+    <button type="button" data-tab="experiments" class="tab-btn px-3.5 py-2 text-[13px] font-medium text-warm-400 hover:text-warm-700 border-b-2 border-transparent -mb-px transition-colors">Experiments</button>
+    <button type="button" data-tab="hypotheses" class="tab-btn px-3.5 py-2 text-[13px] font-medium text-warm-400 hover:text-warm-700 border-b-2 border-transparent -mb-px transition-colors">Hypotheses</button>
+    <button type="button" data-tab="notes" class="tab-btn px-3.5 py-2 text-[13px] font-medium text-warm-400 hover:text-warm-700 border-b-2 border-transparent -mb-px transition-colors">Notes</button>
+    <button type="button" data-tab="automation" class="tab-btn px-3.5 py-2 text-[13px] font-medium text-warm-400 hover:text-warm-700 border-b-2 border-transparent -mb-px transition-colors">Automation</button>
+    <button type="button" data-tab="assistant" class="tab-btn px-3.5 py-2 text-[13px] font-medium text-warm-400 hover:text-warm-700 border-b-2 border-transparent -mb-px transition-colors">Assistant</button>
   </nav>
 
   <!-- Overview -->
-  <section id="tab-overview" class="tab-panel rounded-lg border border-gray-200 bg-white p-4 hidden">
+  <section id="tab-overview" class="tab-panel hidden">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="rounded-md border border-gray-200 p-4">
-        <div class="text-xs uppercase text-gray-500">Paper</div>
-        <div class="mt-1 text-sm text-gray-800">{{ paper.title }}</div>
-        <div class="mt-2">
-          <a href="{% url 'projects_detail' pk=project.pk %}?tab=paper" class="text-brand-700 text-sm hover:underline">Open editor</a>
-          <span class="mx-2 text-gray-300">·</span>
-          <a href="{% url 'literature_search' %}?project={{ project.pk }}" class="text-brand-700 text-sm hover:underline">Add literature</a>
+      <div class="border-gradient rounded-2xl bg-white p-6">
+        <span class="text-[11px] font-semibold text-warm-400 uppercase tracking-widest">Paper</span>
+        <p class="mt-2 text-[14px] font-semibold text-warm-900 truncate">{{ paper.title }}</p>
+        <div class="mt-3 flex items-center gap-3 text-[12px]">
+          <a href="{% url 'projects_detail' pk=project.pk %}?tab=paper" class="font-medium text-accent-600 hover:text-accent-700 transition">Open editor</a>
+          <a href="{% url 'literature_search' %}?project={{ project.pk }}" class="font-medium text-accent-600 hover:text-accent-700 transition">Add literature</a>
         </div>
       </div>
-      <div class="rounded-md border border-gray-200 p-4">
-        <div class="text-xs uppercase text-gray-500">Experiments</div>
-        <div class="mt-1 text-2xl font-semibold">{{ experiments|length }}</div>
-        <div class="mt-2"><a href="{% url 'projects_detail' pk=project.pk %}?tab=experiments" class="text-brand-700 text-sm hover:underline">View experiments</a></div>
+      <div class="border-gradient rounded-2xl bg-white p-6">
+        <span class="text-[11px] font-semibold text-warm-400 uppercase tracking-widest">Experiments</span>
+        <p class="mt-2 font-display text-[32px] text-warm-900 leading-none">{{ experiments|length }}</p>
+        <a href="{% url 'projects_detail' pk=project.pk %}?tab=experiments" class="mt-3 block text-[12px] font-medium text-accent-600 hover:text-accent-700 transition">View all</a>
       </div>
-      <div class="rounded-md border border-gray-200 p-4">
-        <div class="text-xs uppercase text-gray-500">Hypotheses</div>
-        <div class="mt-1 text-2xl font-semibold">{{ hypotheses|length }}</div>
-        <div class="mt-2"><a href="{% url 'projects_detail' pk=project.pk %}?tab=hypotheses" class="text-brand-700 text-sm hover:underline">Manage hypotheses</a></div>
+      <div class="border-gradient rounded-2xl bg-white p-6">
+        <span class="text-[11px] font-semibold text-warm-400 uppercase tracking-widest">Hypotheses</span>
+        <p class="mt-2 font-display text-[32px] text-warm-900 leading-none">{{ hypotheses|length }}</p>
+        <a href="{% url 'projects_detail' pk=project.pk %}?tab=hypotheses" class="mt-3 block text-[12px] font-medium text-accent-600 hover:text-accent-700 transition">Manage</a>
       </div>
     </div>
     <div class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <div class="rounded-md border border-gray-200 p-4">
-        <h3 class="text-sm font-semibold">Recent experiments</h3>
-        <div role="list" class="mt-2 space-y-2">
+      <div class="rounded-2xl bg-white border border-warm-200 overflow-hidden">
+        <div class="px-5 py-3 border-b border-warm-100"><h3 class="text-[13px] font-semibold text-warm-900">Recent experiments</h3></div>
+        <div class="divide-y divide-warm-100">
           {% for s in experiments %}
-            <div role="listitem" class="text-sm flex items-start justify-between">
-              <a href="{% url 'experiments_detail' pk=s.pk %}" class="text-brand-700 hover:underline">{{ s.name }}</a>
-              <span class="ml-2 text-gray-500">{{ s.status }}</span>
-            </div>
-          {% empty %}
-            <div role="listitem" class="text-sm text-gray-500">No experiments yet</div>
-          {% endfor %}
+          <div class="px-5 py-3 flex items-center justify-between hover:bg-warm-50/50 transition">
+            <a href="{% url 'experiments_detail' pk=s.pk %}" class="text-[13px] font-medium text-warm-800 hover:text-accent-600 transition truncate">{{ s.name }}</a>
+            <span class="inline-flex items-center rounded-full px-2 py-[2px] text-[10px] font-semibold shrink-0 ml-3 {% if s.status == 'success' %}bg-emerald-50 text-emerald-700{% elif s.status == 'failed' %}bg-red-50 text-red-700{% elif s.status == 'running' %}bg-blue-50 text-blue-700{% else %}bg-warm-100 text-warm-500{% endif %}">{{ s.status }}</span>
+          </div>
+          {% empty %}<div class="px-5 py-6 text-center text-[13px] text-warm-400">No experiments yet</div>{% endfor %}
         </div>
       </div>
-      <div class="rounded-md border border-gray-200 p-4">
-        <h3 class="text-sm font-semibold">Citations in paper</h3>
-        <div role="list" class="mt-2 space-y-2">
+      <div class="rounded-2xl bg-white border border-warm-200 overflow-hidden">
+        <div class="px-5 py-3 border-b border-warm-100"><h3 class="text-[13px] font-semibold text-warm-900">Citations</h3></div>
+        <div class="divide-y divide-warm-100">
           {% for c in citations %}
-            <div role="listitem" class="text-sm">
-              {% if c.literature.url %}
-                <a href="{{ c.literature.url }}" target="_blank" rel="noopener" class="text-brand-700 hover:underline">{{ c.literature.title }}</a>
-              {% else %}
-                <span class="text-gray-800">{{ c.literature.title }}</span>
-              {% endif %}
-            </div>
-          {% empty %}
-            <div role="listitem" class="text-sm text-gray-500">No citations yet</div>
-          {% endfor %}
+          <div class="px-5 py-3 hover:bg-warm-50/50 transition">
+            {% if c.literature.url %}<a href="{{ c.literature.url }}" target="_blank" rel="noopener" class="text-[13px] font-medium text-warm-800 hover:text-accent-600 transition">{{ c.literature.title }}</a>
+            {% else %}<span class="text-[13px] text-warm-700">{{ c.literature.title }}</span>{% endif %}
+          </div>
+          {% empty %}<div class="px-5 py-6 text-center text-[13px] text-warm-400">No citations yet</div>{% endfor %}
         </div>
       </div>
     </div>
@@ -91,91 +93,83 @@
   <!-- Paper -->
   <section id="tab-paper" class="tab-panel hidden">
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
-      <!-- Editor + Preview -->
       <div class="xl:col-span-2 space-y-4">
-        <div class="rounded-lg border border-gray-200 bg-white">
-          <form method="post" action="{% url 'projects_update_paper' pk=project.pk %}" class="p-4">
+        <div class="rounded-2xl bg-white border border-warm-200">
+          <form method="post" action="{% url 'projects_update_paper' pk=project.pk %}" class="p-6">
             {% csrf_token %}
             <input type="hidden" name="tab" value="paper">
             <input type="hidden" name="content_format" value="tex">
-            <div class="flex items-center justify-between">
-              <div class="text-sm font-semibold">Paper editor</div>
+            <div class="flex items-center justify-between mb-5">
+              <h3 class="text-[13px] font-semibold text-warm-900">Paper editor</h3>
               <div class="flex items-center gap-2">
-                <a href="https://www.mathjax.org/" target="_blank" rel="noopener" class="text-xs text-gray-600 hover:text-gray-800">LaTeX</a>
-                <button type="submit" class="inline-flex items-center rounded-md bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700">Save</button>
-                <button type="submit" formaction="{% url 'projects_recompile_paper' pk=project.pk %}" class="inline-flex items-center rounded-md border border-gray-300 px-3 py-1.5 text-sm font-semibold text-gray-800 hover:bg-gray-50">Recompile</button>
+                <button type="submit" class="rounded-xl bg-accent-600 px-3.5 py-[7px] text-[13px] font-semibold text-white hover:bg-accent-700 shadow-sm transition">Save</button>
+                <button type="submit" formaction="{% url 'projects_recompile_paper' pk=project.pk %}" class="rounded-xl border border-warm-200 px-3.5 py-[7px] text-[13px] font-medium text-warm-600 hover:bg-warm-50 transition">Recompile</button>
               </div>
             </div>
-            <div class="mt-3 grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div>
-                <label class="block text-xs font-medium text-gray-700">Title</label>
-                <input name="title" value="{{ paper.title }}" class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-600 focus:outline-none" placeholder="Paper title">
+                <label class="block text-[11px] font-semibold text-warm-400 uppercase tracking-wider mb-1.5">Title</label>
+                <input name="title" value="{{ paper.title }}" class="w-full rounded-xl border border-warm-200 bg-warm-50 px-3.5 py-2.5 text-[14px] text-warm-800 focus:bg-white focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 focus:outline-none transition-all" placeholder="Paper title">
               </div>
               <div>
-                <label class="block text-xs font-medium text-gray-700">Abstract</label>
-                <textarea name="abstract" rows="3" class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-600 focus:outline-none" placeholder="A concise abstract">{{ paper.abstract }}</textarea>
+                <label class="block text-[11px] font-semibold text-warm-400 uppercase tracking-wider mb-1.5">Abstract</label>
+                <textarea name="abstract" rows="3" class="w-full rounded-xl border border-warm-200 bg-warm-50 px-3.5 py-2.5 text-[14px] text-warm-800 focus:bg-white focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 focus:outline-none transition-all" placeholder="Abstract">{{ paper.abstract }}</textarea>
               </div>
               <div class="lg:col-span-2">
-                <label class="block text-xs font-medium text-gray-700">Content (LaTeX)</label>
-                <textarea id="paper-content" name="content_raw" rows="20" class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm font-mono text-gray-900 placeholder-gray-400 focus:border-brand-600 focus:outline-none" placeholder="% LaTeX example\n\\section{Introduction}\nThis is inline math $E=mc^2$.\n\\begin{equation}\na^2 + b^2 = c^2\n\\end{equation}">{{ paper.content_raw }}</textarea>
+                <label class="block text-[11px] font-semibold text-warm-400 uppercase tracking-wider mb-1.5">Content (LaTeX)</label>
+                <textarea id="paper-content" name="content_raw" rows="20" class="w-full rounded-xl border border-warm-200 bg-warm-50 px-3.5 py-2.5 text-[13px] font-mono text-warm-800 focus:bg-white focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 focus:outline-none transition-all" placeholder="% LaTeX content">{{ paper.content_raw }}</textarea>
               </div>
             </div>
           </form>
+          <div class="px-6 pb-4">
+            <form method="post" action="{% url 'projects_parse_sections' pk=project.pk %}" class="inline">
+              {% csrf_token %}
+              <button type="submit" class="rounded-xl border border-warm-200 px-3.5 py-[7px] text-[13px] font-medium text-warm-600 hover:bg-warm-50 transition">Split into sections</button>
+            </form>
+          </div>
         </div>
-
-        <div class="rounded-lg border border-gray-200 bg-white p-4">
-          <div class="text-sm font-semibold">Live preview</div>
-          <div id="paper-preview" class="mt-3 text-gray-900 leading-relaxed space-y-3"></div>
+        <!-- Section Editor -->
+        <div id="section-editor" class="rounded-2xl bg-white border border-warm-200 p-6" style="display:none;">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-[13px] font-semibold text-warm-900">Section editor</h3>
+            <button id="close-section-editor" class="text-[12px] font-medium text-warm-400 hover:text-warm-700 transition">Back to full editor</button>
+          </div>
+          <div id="sections-list" class="space-y-3"></div>
+        </div>
+        <div class="rounded-2xl bg-white border border-warm-200 p-6">
+          <h3 class="text-[13px] font-semibold text-warm-900">Live preview</h3>
+          <div id="paper-preview" class="mt-4 text-warm-700 leading-relaxed space-y-3 prose prose-sm max-w-none"></div>
         </div>
       </div>
-
-      <!-- Sidebar: Experiments, Citations, Hypotheses -->
       <aside class="space-y-4">
-        <div class="rounded-lg border border-gray-200 bg-white p-4">
-          <h3 class="text-sm font-semibold">Recent experiments</h3>
-          <div role="list" class="mt-2 space-y-2">
+        <div class="rounded-2xl bg-white border border-warm-200 p-5">
+          <span class="text-[11px] font-semibold text-warm-400 uppercase tracking-widest">Experiments</span>
+          <div class="mt-3 space-y-1">
             {% for s in experiments %}
-              <div role="listitem" class="text-sm">
-                <a href="{% url 'experiments_detail' pk=s.pk %}" class="text-brand-700 hover:underline">{{ s.name }}</a>
-                <span class="text-gray-500">· {{ s.status }}</span>
-              </div>
-            {% empty %}
-              <div role="listitem" class="text-sm text-gray-500">No experiments yet</div>
-            {% endfor %}
+            <div class="flex items-center justify-between py-1"><a href="{% url 'experiments_detail' pk=s.pk %}" class="text-[12px] font-medium text-warm-700 hover:text-accent-600 truncate transition">{{ s.name }}</a><span class="text-[11px] text-warm-400 ml-2 shrink-0">{{ s.status }}</span></div>
+            {% empty %}<p class="text-[12px] text-warm-400">None yet</p>{% endfor %}
           </div>
         </div>
-        <div class="rounded-lg border border-gray-200 bg-white p-4">
-          <h3 class="text-sm font-semibold">Citations</h3>
-          <div role="list" class="mt-2 space-y-2">
+        <div class="rounded-2xl bg-white border border-warm-200 p-5">
+          <span class="text-[11px] font-semibold text-warm-400 uppercase tracking-widest">Citations</span>
+          <div class="mt-3 space-y-1">
             {% for c in citations %}
-              <div role="listitem" class="text-sm">
-                {% if c.literature.url %}
-                  <a href="{{ c.literature.url }}" target="_blank" rel="noopener" class="text-brand-700 hover:underline">{{ c.literature.title }}</a>
-                {% else %}
-                  <span class="text-gray-800">{{ c.literature.title }}</span>
-                {% endif %}
-              </div>
-            {% empty %}
-              <div role="listitem" class="text-sm text-gray-500">No citations yet</div>
-            {% endfor %}
+            <div class="py-1">{% if c.literature.url %}<a href="{{ c.literature.url }}" target="_blank" rel="noopener" class="text-[12px] font-medium text-warm-700 hover:text-accent-600 transition">{{ c.literature.title }}</a>{% else %}<span class="text-[12px] text-warm-600">{{ c.literature.title }}</span>{% endif %}</div>
+            {% empty %}<p class="text-[12px] text-warm-400">None yet</p>{% endfor %}
           </div>
         </div>
-        <div class="rounded-lg border border-gray-200 bg-white p-4">
-          <h3 class="text-sm font-semibold">Hypotheses</h3>
-          <div role="list" class="mt-2 space-y-2">
-            {% for h in hypotheses %}
-              <div role="listitem" class="text-sm flex items-start justify-between gap-2">
-                <div>
-                  <div class="font-medium text-gray-900">{{ h.title }}</div>
-                  <div class="text-gray-600 text-xs">{{ h.status }}</div>
-                </div>
-              </div>
-            {% empty %}
-              <div role="listitem" class="text-sm text-gray-500">No hypotheses yet</div>
-            {% endfor %}
+        <div class="rounded-2xl bg-white border border-warm-200 p-5">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-semibold text-warm-400 uppercase tracking-widest">Hypotheses</span>
+            <a href="{% url 'projects_detail' pk=project.pk %}?tab=hypotheses" class="text-[11px] font-medium text-accent-600 hover:text-accent-700 transition">Manage</a>
           </div>
-          <div class="mt-3 text-right">
-            <a href="{% url 'projects_detail' pk=project.pk %}?tab=hypotheses" class="text-brand-700 text-sm hover:underline">Manage</a>
+          <div class="mt-3 space-y-1.5">
+            {% for h in hypotheses %}
+            <div class="flex items-start justify-between gap-2">
+              <span class="text-[12px] font-medium text-warm-700">{{ h.title }}</span>
+              <span class="inline-flex items-center rounded-full px-1.5 py-[1px] text-[9px] font-bold uppercase tracking-wider shrink-0 {% if h.status == 'supported' %}bg-emerald-50 text-emerald-700{% elif h.status == 'rejected' %}bg-red-50 text-red-700{% elif h.status == 'inconclusive' %}bg-amber-50 text-amber-700{% else %}bg-warm-100 text-warm-500{% endif %}">{{ h.status }}</span>
+            </div>
+            {% empty %}<p class="text-[12px] text-warm-400">None yet</p>{% endfor %}
           </div>
         </div>
       </aside>
@@ -183,374 +177,441 @@
   </section>
 
   <!-- Literature -->
-  <section id="tab-literature" class="tab-panel rounded-lg border border-gray-200 bg-white p-4 hidden">
-    <div class="flex items-center justify-between">
-      <h3 class="text-sm font-semibold">Linked & related literature</h3>
-      <a href="{% url 'literature_search' %}" class="text-brand-700 text-sm hover:underline">Search & add</a>
+  <section id="tab-literature" class="tab-panel rounded-2xl bg-white border border-warm-200 hidden">
+    <div class="px-6 py-4 border-b border-warm-100 flex items-center justify-between">
+      <h3 class="text-[13px] font-semibold text-warm-900">Linked literature</h3>
+      <div class="flex items-center gap-2">
+        <a href="{% url 'literature_search' %}" class="text-[12px] font-medium text-accent-600 hover:text-accent-700 transition">Search & add</a>
+        <span class="text-warm-300">|</span>
+        <a href="{% url 'literature_fulltext_search' %}?project={{ project.pk }}" class="text-[12px] font-medium text-accent-600 hover:text-accent-700 transition">Full-text search</a>
+      </div>
     </div>
-    <div role="list" class="mt-3 space-y-3">
+    <div class="divide-y divide-warm-100">
       {% for lit in related_literature %}
-        <div role="listitem" class="text-sm">
-          {% if lit.url %}
-            <a href="{{ lit.url }}" target="_blank" rel="noopener" class="text-brand-700 hover:underline">{{ lit.title }}</a>
-          {% else %}
-            <span class="text-gray-900">{{ lit.title }}</span>
-          {% endif %}
-          {% if lit.year %}<span class="text-gray-500"> · {{ lit.year }}</span>{% endif %}
-          {% if lit.tags %}<div class="text-xs text-gray-500">{{ lit.tags }}</div>{% endif %}
+      <div class="px-6 py-3.5 flex items-center justify-between hover:bg-warm-50/50 transition">
+        <div class="min-w-0">
+          {% if lit.url %}<a href="{{ lit.url }}" target="_blank" rel="noopener" class="text-[13px] font-medium text-warm-800 hover:text-accent-600 transition truncate block">{{ lit.title }}</a>
+          {% else %}<span class="text-[13px] text-warm-700 truncate block">{{ lit.title }}</span>{% endif %}
+          {% if lit.tags %}<p class="text-[11px] text-warm-400 mt-0.5">{{ lit.tags }}</p>{% endif %}
         </div>
-      {% empty %}
-        <div role="listitem" class="text-sm text-gray-500">No literature linked yet</div>
-      {% endfor %}
+        {% if lit.year %}<span class="text-[12px] text-warm-400 shrink-0 ml-3 tabular-nums">{{ lit.year }}</span>{% endif %}
+      </div>
+      {% empty %}<div class="px-6 py-8 text-center text-[13px] text-warm-400">No literature linked yet</div>{% endfor %}
+    </div>
+    <div class="mt-6 rounded-2xl bg-white border border-warm-200 p-6">
+      <h3 class="text-[13px] font-semibold text-warm-900 mb-4">Citation network</h3>
+      <div id="citation-graph" class="h-64 rounded-xl bg-warm-50 border border-warm-100 overflow-hidden relative">
+        <canvas id="citation-canvas" class="w-full h-full"></canvas>
+      </div>
     </div>
   </section>
 
   <!-- Experiments -->
-  <section id="tab-experiments" class="tab-panel rounded-lg border border-gray-200 bg-white p-4 hidden">
-    <div class="flex items-center justify-between">
-      <h3 class="text-sm font-semibold">Experiments</h3>
-      <a href="{% url 'experiments_create' %}" class="inline-flex items-center rounded-md border border-gray-300 px-3 py-1.5 text-sm font-semibold text-gray-800 hover:bg-gray-50">New experiment</a>
+  <section id="tab-experiments" class="tab-panel rounded-2xl bg-white border border-warm-200 hidden">
+    <div class="px-6 py-4 border-b border-warm-100 flex items-center justify-between">
+      <h3 class="text-[13px] font-semibold text-warm-900">Experiments</h3>
+      <a href="{% url 'experiments_create' %}" class="inline-flex items-center gap-1 rounded-xl border border-warm-200 px-3 py-[5px] text-[12px] font-medium text-warm-600 hover:bg-warm-50 transition">
+        <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+        New
+      </a>
     </div>
-    <div role="list" class="mt-3 divide-y divide-gray-200">
+    <div class="divide-y divide-warm-100">
       {% for s in experiments %}
-        <div role="listitem" class="py-3">
-          <div class="flex items-start justify-between">
-            <div>
-              <a href="{% url 'experiments_detail' pk=s.pk %}" class="text-sm font-medium text-brand-700 hover:underline">{{ s.name }}</a>
-              <div class="text-xs text-gray-600">{{ s.description|default:"No description" }}</div>
-            </div>
-            <div class="text-xs text-gray-500">{{ s.status }}</div>
-          </div>
+      <div class="px-6 py-3.5 flex items-center justify-between hover:bg-warm-50/50 transition">
+        <div class="min-w-0">
+          <a href="{% url 'experiments_detail' pk=s.pk %}" class="text-[13px] font-medium text-warm-800 hover:text-accent-600 transition">{{ s.name }}</a>
+          <p class="text-[11px] text-warm-400 mt-0.5">{{ s.description|default:"No description" }}</p>
         </div>
-      {% empty %}
-        <div role="listitem" class="text-sm text-gray-500 py-3">No experiments yet</div>
-      {% endfor %}
+        <span class="inline-flex items-center rounded-full px-2 py-[2px] text-[10px] font-semibold shrink-0 ml-3 {% if s.status == 'success' %}bg-emerald-50 text-emerald-700{% elif s.status == 'failed' %}bg-red-50 text-red-700{% elif s.status == 'running' %}bg-blue-50 text-blue-700{% else %}bg-warm-100 text-warm-500{% endif %}">{{ s.status }}</span>
+      </div>
+      {% empty %}<div class="px-6 py-8 text-center text-[13px] text-warm-400">No experiments yet</div>{% endfor %}
     </div>
   </section>
 
   <!-- Hypotheses -->
-  <section id="tab-hypotheses" class="tab-panel rounded-lg border border-gray-200 bg-white p-4 hidden">
+  <section id="tab-hypotheses" class="tab-panel hidden">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      <div class="lg:col-span-2">
-        <h3 class="text-sm font-semibold">Hypotheses</h3>
-        <div role="list" class="mt-3 divide-y divide-gray-200">
+      <div class="lg:col-span-2 rounded-2xl bg-white border border-warm-200">
+        <div class="px-6 py-4 border-b border-warm-100"><h3 class="text-[13px] font-semibold text-warm-900">Hypotheses</h3></div>
+        <div class="divide-y divide-warm-100">
           {% for h in hypotheses %}
-            <div role="listitem" class="py-3">
-              <div class="flex items-start justify-between">
-                <div>
-                  <div class="text-sm font-medium text-gray-900">{{ h.title }}</div>
-                  <div class="text-sm text-gray-700">{{ h.statement }}</div>
-                </div>
-                <div class="text-xs text-gray-500">{{ h.status }}</div>
-              </div>
+          <div class="px-6 py-4 flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <p class="text-[13px] font-semibold text-warm-900">{{ h.title }}</p>
+              <p class="text-[13px] text-warm-500 mt-1 leading-relaxed">{{ h.statement }}</p>
             </div>
-          {% empty %}
-            <div role="listitem" class="text-sm text-gray-500 py-3">No hypotheses yet</div>
-          {% endfor %}
+            <span class="inline-flex items-center rounded-full px-2.5 py-[3px] text-[10px] font-bold uppercase tracking-wider shrink-0 {% if h.status == 'supported' %}bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200{% elif h.status == 'rejected' %}bg-red-50 text-red-700 ring-1 ring-red-200{% elif h.status == 'inconclusive' %}bg-amber-50 text-amber-700 ring-1 ring-amber-200{% else %}bg-warm-100 text-warm-500 ring-1 ring-warm-200{% endif %}">{{ h.status }}</span>
+          </div>
+          {% empty %}<div class="px-6 py-8 text-center text-[13px] text-warm-400">No hypotheses yet</div>{% endfor %}
         </div>
       </div>
-      <div>
-        <h4 class="text-sm font-semibold">Add hypothesis</h4>
-        <form method="post" action="{% url 'projects_add_hypothesis' pk=project.pk %}" class="mt-2 space-y-2">
+      <div class="rounded-2xl bg-white border border-warm-200 p-6 self-start">
+        <h4 class="text-[13px] font-semibold text-warm-900">Add hypothesis</h4>
+        <form method="post" action="{% url 'projects_add_hypothesis' pk=project.pk %}" class="mt-5 space-y-3">
           {% csrf_token %}
           <div>
-            <label class="block text-xs font-medium text-gray-700">Title</label>
-            <input name="title" class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-brand-600 focus:outline-none" placeholder="Hypothesis title">
+            <label class="block text-[11px] font-semibold text-warm-400 uppercase tracking-wider mb-1.5">Title</label>
+            <input name="title" class="w-full rounded-xl border border-warm-200 bg-warm-50 px-3.5 py-2.5 text-[14px] text-warm-800 focus:bg-white focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 focus:outline-none transition-all" placeholder="Hypothesis title">
           </div>
           <div>
-            <label class="block text-xs font-medium text-gray-700">Statement</label>
-            <textarea name="statement" rows="4" class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-brand-600 focus:outline-none" placeholder="What do you propose?"></textarea>
+            <label class="block text-[11px] font-semibold text-warm-400 uppercase tracking-wider mb-1.5">Statement</label>
+            <textarea name="statement" rows="4" class="w-full rounded-xl border border-warm-200 bg-warm-50 px-3.5 py-2.5 text-[14px] text-warm-800 focus:bg-white focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 focus:outline-none transition-all" placeholder="What do you propose?"></textarea>
           </div>
-          <div class="pt-1">
-            <button type="submit" class="inline-flex items-center rounded-md bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700">Add</button>
-          </div>
+          <button type="submit" class="w-full rounded-xl bg-accent-600 px-4 py-2.5 text-[13px] font-semibold text-white hover:bg-accent-700 shadow-sm transition">Add hypothesis</button>
         </form>
       </div>
     </div>
   </section>
 
   <!-- Notes -->
-  <section id="tab-notes" class="tab-panel rounded-lg border border-gray-200 bg-white p-4 hidden">
+  <section id="tab-notes" class="tab-panel hidden">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      <div class="lg:col-span-2">
-        <h3 class="text-sm font-semibold">Notes</h3>
-        <div role="list" class="mt-3 divide-y divide-gray-200">
+      <div class="lg:col-span-2 rounded-2xl bg-white border border-warm-200">
+        <div class="px-6 py-4 border-b border-warm-100"><h3 class="text-[13px] font-semibold text-warm-900">Notes</h3></div>
+        <div class="divide-y divide-warm-100">
           {% for n in notes %}
-            <div role="listitem" class="py-3">
-              <div class="flex items-start justify-between">
-                <div>
-                  <div class="text-sm font-medium text-gray-900">{{ n.title }}</div>
-                  <div class="text-sm text-gray-700 whitespace-pre-wrap">{{ n.body }}</div>
-                </div>
-                {% if n.pinned %}<span class="text-xs text-brand-700">Pinned</span>{% endif %}
-              </div>
+          <div class="px-6 py-4 flex items-start justify-between">
+            <div>
+              <p class="text-[13px] font-semibold text-warm-900">{{ n.title }}</p>
+              <p class="text-[13px] text-warm-500 mt-1 whitespace-pre-wrap leading-relaxed">{{ n.body }}</p>
             </div>
-          {% empty %}
-            <div role="listitem" class="text-sm text-gray-500 py-3">No notes yet</div>
-          {% endfor %}
+            {% if n.pinned %}<span class="inline-flex items-center rounded-full bg-accent-50 text-accent-700 px-2 py-[2px] text-[10px] font-bold uppercase tracking-wider shrink-0 ml-3 ring-1 ring-accent-200">Pinned</span>{% endif %}
+          </div>
+          {% empty %}<div class="px-6 py-8 text-center text-[13px] text-warm-400">No notes yet</div>{% endfor %}
         </div>
       </div>
-      <div>
-        <h4 class="text-sm font-semibold">Add note</h4>
-        <form method="post" action="{% url 'projects_add_note' pk=project.pk %}" class="mt-2 space-y-2">
+      <div class="rounded-2xl bg-white border border-warm-200 p-6 self-start">
+        <h4 class="text-[13px] font-semibold text-warm-900">Add note</h4>
+        <form method="post" action="{% url 'projects_add_note' pk=project.pk %}" class="mt-5 space-y-3">
           {% csrf_token %}
           <div>
-            <label class="block text-xs font-medium text-gray-700">Title</label>
-            <input name="title" class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-brand-600 focus:outline-none" placeholder="Note title">
+            <label class="block text-[11px] font-semibold text-warm-400 uppercase tracking-wider mb-1.5">Title</label>
+            <input name="title" class="w-full rounded-xl border border-warm-200 bg-warm-50 px-3.5 py-2.5 text-[14px] text-warm-800 focus:bg-white focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 focus:outline-none transition-all" placeholder="Note title">
           </div>
           <div>
-            <label class="block text-xs font-medium text-gray-700">Body</label>
-            <textarea name="body" rows="5" class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-brand-600 focus:outline-none" placeholder="Write your note..."></textarea>
+            <label class="block text-[11px] font-semibold text-warm-400 uppercase tracking-wider mb-1.5">Body</label>
+            <textarea name="body" rows="5" class="w-full rounded-xl border border-warm-200 bg-warm-50 px-3.5 py-2.5 text-[14px] text-warm-800 focus:bg-white focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 focus:outline-none transition-all" placeholder="Write your note..."></textarea>
           </div>
-          <label class="inline-flex items-center gap-2 text-xs text-gray-700">
-            <input type="checkbox" name="pinned" class="h-4 w-4 rounded border-gray-300"> Pinned
+          <label class="inline-flex items-center gap-2 text-[12px] text-warm-600">
+            <input type="checkbox" name="pinned" class="h-3.5 w-3.5 rounded border-warm-300 text-accent-600 focus:ring-accent-500"> Pin this note
           </label>
-          <div class="pt-1">
-            <button type="submit" class="inline-flex items-center rounded-md bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700">Add</button>
-          </div>
+          <button type="submit" class="w-full rounded-xl bg-accent-600 px-4 py-2.5 text-[13px] font-semibold text-white hover:bg-accent-700 shadow-sm transition">Add note</button>
         </form>
       </div>
     </div>
   </section>
 
   <!-- Automation -->
-  <section id="tab-automation" class="tab-panel rounded-lg border border-gray-200 bg-white p-4 hidden">
+  <section id="tab-automation" class="tab-panel rounded-2xl bg-white border border-warm-200 p-6 hidden">
     <div class="flex items-center justify-between">
-      <h3 class="text-sm font-semibold">Automation status</h3>
-      <button id="automation-refresh" type="button" class="inline-flex items-center rounded-md border border-gray-300 px-3 py-1.5 text-sm font-semibold text-gray-800 hover:bg-gray-50">Refresh</button>
+      <h3 class="text-[13px] font-semibold text-warm-900">Automation status</h3>
+      <div class="flex items-center gap-2">
+        <button id="automation-refresh" type="button" class="inline-flex items-center gap-1.5 rounded-xl border border-warm-200 px-3 py-[5px] text-[12px] font-medium text-warm-600 hover:bg-warm-50 transition">
+          <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>
+          Refresh
+        </button>
+      </div>
     </div>
-    <div id="automation-status" class="mt-3 text-sm">
-      <div class="text-gray-500">Loading status…</div>
+    <div id="automation-status" class="mt-4 text-[13px]"><div class="text-warm-400">Loading...</div></div>
+
+    <!-- Re-run controls -->
+    <div class="mt-6 border-t border-warm-100 pt-6">
+      <h4 class="text-[13px] font-semibold text-warm-900 mb-3">Run pipeline stages</h4>
+      <p class="text-[12px] text-warm-500 mb-4">Re-run individual stages or the full pipeline. Each stage builds on the previous results.</p>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+        <button onclick="rerunStage('initial_research')" class="rerun-btn rounded-xl border border-warm-200 px-3 py-2.5 text-left hover:border-accent-300 hover:shadow-glow transition-all duration-200">
+          <p class="text-[12px] font-semibold text-warm-800">1. Literature review</p>
+          <p class="text-[10px] text-warm-400 mt-0.5">Search, link, summarize</p>
+        </button>
+        <button onclick="rerunStage('initial_draft')" class="rerun-btn rounded-xl border border-warm-200 px-3 py-2.5 text-left hover:border-accent-300 hover:shadow-glow transition-all duration-200">
+          <p class="text-[12px] font-semibold text-warm-800">2. Paper draft</p>
+          <p class="text-[10px] text-warm-400 mt-0.5">Abstract + lit review</p>
+        </button>
+        <button onclick="rerunStage('hypothesis_testing')" class="rerun-btn rounded-xl border border-warm-200 px-3 py-2.5 text-left hover:border-accent-300 hover:shadow-glow transition-all duration-200">
+          <p class="text-[12px] font-semibold text-warm-800">3. Test hypotheses</p>
+          <p class="text-[10px] text-warm-400 mt-0.5">Research, simulate, evaluate</p>
+        </button>
+        <button onclick="rerunStage('compilation')" class="rerun-btn rounded-xl border border-warm-200 px-3 py-2.5 text-left hover:border-accent-300 hover:shadow-glow transition-all duration-200">
+          <p class="text-[12px] font-semibold text-warm-800">4. Compile paper</p>
+          <p class="text-[10px] text-warm-400 mt-0.5">Full LaTeX manuscript</p>
+        </button>
+      </div>
+      <form method="post" action="{% url 'projects_rerun_full' pk=project.pk %}" class="inline">
+        {% csrf_token %}
+        <button type="submit" onclick="return confirm('Re-run the entire pipeline? This may take several minutes.')" class="inline-flex items-center gap-1.5 rounded-xl bg-accent-600 px-4 py-2 text-[12px] font-semibold text-white hover:bg-accent-700 shadow-sm transition">
+          <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>
+          Re-run full pipeline
+        </button>
+      </form>
+      <div id="rerun-status" class="mt-3 text-[12px] text-warm-500"></div>
     </div>
   </section>
 
   <!-- Assistant -->
-  <section id="tab-assistant" class="tab-panel rounded-lg border border-gray-200 bg-white p-4 hidden">
-    <div class="flex items-center justify-between">
-      <h3 class="text-sm font-semibold">Project assistant</h3>
-      <div class="text-xs text-gray-500">You are chatting about project #{{ project.pk }}</div>
+  <section id="tab-assistant" class="tab-panel rounded-2xl bg-white border border-warm-200 p-6 hidden">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-[13px] font-semibold text-warm-900">Project assistant</h3>
+      <span class="text-[11px] text-warm-400">Project #{{ project.pk }}</span>
     </div>
-    <div id="assistant-chat" class="mt-3 h-80 overflow-y-auto rounded border border-gray-200 p-3 bg-gray-50 space-y-2"></div>
+    <div id="assistant-chat" class="h-80 overflow-y-auto sidebar-scroll rounded-2xl border border-warm-100 p-4 bg-warm-50/50 space-y-3"></div>
     <form id="assistant-form" class="mt-3 flex gap-2">
       <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token_value }}">
-      <input id="assistant-input" class="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-brand-600 focus:outline-none" placeholder="Ask the assistant..." autocomplete="off">
-      <button type="submit" class="inline-flex items-center rounded-md bg-brand-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-700">Send</button>
+      <input id="assistant-input" class="flex-1 rounded-xl border border-warm-200 bg-warm-50 px-4 py-2.5 text-[14px] text-warm-800 focus:bg-white focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 focus:outline-none transition-all" placeholder="Ask the assistant..." autocomplete="off">
+      <button type="submit" class="inline-flex items-center gap-1.5 rounded-xl bg-accent-600 px-4 py-2.5 text-[13px] font-semibold text-white hover:bg-accent-700 shadow-sm transition">
+        <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg>
+        Send
+      </button>
     </form>
   </section>
 </div>
 
-<!-- Tab + Preview Scripts -->
 <script>
   (function() {
     function selectTab(name) {
-      const panels = document.querySelectorAll('.tab-panel');
-      const buttons = document.querySelectorAll('.tab-btn');
-      panels.forEach(p => p.classList.add('hidden'));
-      buttons.forEach(b => {
-        if (b.dataset.tab === name) {
-          b.classList.add('text-brand-700');
-          b.setAttribute('aria-selected', 'true');
-        } else {
-          b.classList.remove('text-brand-700');
-          b.removeAttribute('aria-selected');
-        }
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        const active = b.dataset.tab === name;
+        b.classList.toggle('text-accent-700', active);
+        b.classList.toggle('border-accent-600', active);
+        b.classList.toggle('text-warm-400', !active);
+        b.classList.toggle('border-transparent', !active);
+        if (active) b.setAttribute('aria-selected','true'); else b.removeAttribute('aria-selected');
       });
-      const el = document.getElementById('tab-' + name);
+      const el = document.getElementById('tab-'+name);
       if (el) el.classList.remove('hidden');
+      // Brief fade-in
+      if (el) { el.style.opacity = '0'; el.style.transition = 'opacity 150ms'; requestAnimationFrame(() => { el.style.opacity = '1'; }); }
       const url = new URL(window.location);
-      url.searchParams.set('tab', name);
-      window.history.replaceState({}, '', url);
+      url.searchParams.set('tab',name);
+      window.history.replaceState({},'',url);
     }
+    document.addEventListener('click', e => { const b = e.target.closest('.tab-btn'); if (b) selectTab(b.dataset.tab); });
+    selectTab((document.getElementById('project-tabs')?.dataset?.initialTab)||'overview');
 
-    document.addEventListener('click', function(e) {
-      const btn = e.target.closest('.tab-btn');
-      if (btn) {
-        selectTab(btn.dataset.tab);
-      }
-    });
-
-    // Initialize selected tab
-    const init = (document.getElementById('project-tabs')?.dataset?.initialTab) || 'overview';
-    selectTab(init);
-
-    // Convert LaTeX to simple HTML structure while keeping math as LaTeX for MathJax
     function latexToHtml(src) {
-      let text = String(src || '').replace(/\r\n/g, '\n');
-      // Remove common preamble directives
-      text = text.replace(/\\documentclass[^\n]*\n?/g, '');
-      text = text.replace(/\\usepackage\{[^}]+\}\n?/g, '');
-      text = text.replace(/\\begin\{document\}\n?/g, '');
-      text = text.replace(/\\end\{document\}\n?/g, '');
-      text = text.replace(/\\maketitle\n?/g, '');
-
-      // Headings
-      text = text.replace(/\\section\*?\{([^}]*)\}/g, '\n\n<h2>$1<\/h2>\n\n');
-      text = text.replace(/\\subsection\*?\{([^}]*)\}/g, '\n\n<h3>$1<\/h3>\n\n');
-      text = text.replace(/\\subsubsection\*?\{([^}]*)\}/g, '\n\n<h4>$1<\/h4>\n\n');
-      text = text.replace(/\\paragraph\*?\{([^}]*)\}/g, '\n\n<h5>$1<\/h5>\n\n');
-
-      // Equations and align environments → keep as $$ ... $$ for MathJax
-      text = text.replace(/\\begin\{equation\*?\}([\s\S]*?)\\end\{equation\*?\}/g, function(_, body){
-        return `\n\n$$\n${body.trim()}\n$$\n\n`;
-      });
-      text = text.replace(/\\begin\{align\*?\}([\s\S]*?)\\end\{align\*?\}/g, function(_, body){
-        return `\n\n$$\n${body.trim()}\n$$\n\n`;
-      });
-
-      // Itemize → <ul><li>
-      text = text.replace(/\\begin\{itemize\}([\s\S]*?)\\end\{itemize\}/g, function(_, body){
-        const items = body.replace(/^\s*\\item\s*/gm, '<li>').replace(/\n(?=\s*\\item|$)/g, '</li>\n');
-        return `\n<ul>\n${items}\n</ul>\n`;
-      });
-      // Enumerate → <ol><li>
-      text = text.replace(/\\begin\{enumerate\}([\s\S]*?)\\end\{enumerate\}/g, function(_, body){
-        const items = body.replace(/^\s*\\item\s*/gm, '<li>').replace(/\n(?=\s*\\item|$)/g, '</li>\n');
-        return `\n<ol>\n${items}\n</ol>\n`;
-      });
-
-      // Simple emphasis
-      text = text.replace(/\\textbf\{([^}]*)\}/g, '<strong>$1<\/strong>');
-      text = text.replace(/\\emph\{([^}]*)\}/g, '<em>$1<\/em>');
-
-      // Preserve line breaks inside plain paragraphs
-      text = text.replace(/([^>])\n(?!\n)/g, '$1<br/>');
-      return text;
+      let t = String(src||'').replace(/\r\n/g,'\n');
+      t=t.replace(/\\documentclass[^\n]*\n?/g,'');t=t.replace(/\\usepackage\{[^}]+\}\n?/g,'');
+      t=t.replace(/\\begin\{document\}\n?/g,'');t=t.replace(/\\end\{document\}\n?/g,'');t=t.replace(/\\maketitle\n?/g,'');
+      t=t.replace(/\\section\*?\{([^}]*)\}/g,'\n\n<h2>$1</h2>\n\n');
+      t=t.replace(/\\subsection\*?\{([^}]*)\}/g,'\n\n<h3>$1</h3>\n\n');
+      t=t.replace(/\\subsubsection\*?\{([^}]*)\}/g,'\n\n<h4>$1</h4>\n\n');
+      t=t.replace(/\\paragraph\*?\{([^}]*)\}/g,'\n\n<h5>$1</h5>\n\n');
+      t=t.replace(/\\begin\{equation\*?\}([\s\S]*?)\\end\{equation\*?\}/g,(_,b)=>'\n\n$$\n'+b.trim()+'\n$$\n\n');
+      t=t.replace(/\\begin\{align\*?\}([\s\S]*?)\\end\{align\*?\}/g,(_,b)=>'\n\n$$\n'+b.trim()+'\n$$\n\n');
+      t=t.replace(/\\begin\{itemize\}([\s\S]*?)\\end\{itemize\}/g,(_,b)=>{const i=b.replace(/^\s*\\item\s*/gm,'<li>').replace(/\n(?=\s*\\item|$)/g,'</li>\n');return'\n<ul>\n'+i+'\n</ul>\n';});
+      t=t.replace(/\\begin\{enumerate\}([\s\S]*?)\\end\{enumerate\}/g,(_,b)=>{const i=b.replace(/^\s*\\item\s*/gm,'<li>').replace(/\n(?=\s*\\item|$)/g,'</li>\n');return'\n<ol>\n'+i+'\n</ol>\n';});
+      t=t.replace(/\\textbf\{([^}]*)\}/g,'<strong>$1</strong>');t=t.replace(/\\emph\{([^}]*)\}/g,'<em>$1</em>');
+      t=t.replace(/([^>])\n(?!\n)/g,'$1<br/>');return t;
     }
+    function renderPreview(){const s=document.getElementById('paper-content'),o=document.getElementById('paper-preview');if(!s||!o||!window.DOMPurify)return;o.innerHTML=DOMPurify.sanitize(latexToHtml(s.value),{ALLOWED_TAGS:['b','i','em','strong','p','br','ul','ol','li','h2','h3','h4','h5','h6','code','pre']});if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([o]).catch(()=>{});}
+    document.addEventListener('input',e=>{if(e.target?.id==='paper-content')renderPreview();});
+    document.addEventListener('DOMContentLoaded',renderPreview);window.addEventListener('load',renderPreview);
 
-    // Render LaTeX-only content
-    function renderPreview() {
-      const src = document.getElementById('paper-content');
-      const out = document.getElementById('paper-preview');
-      if (!src || !out || !window.DOMPurify) return;
-      const raw = src.value || '';
-      const latexHtml = latexToHtml(raw);
-      // Only minimal sanitization for text; MathJax will process math
-      const html = DOMPurify.sanitize(latexHtml, {ALLOWED_TAGS: ['b','i','em','strong','p','br','ul','ol','li','h2','h3','h4','h5','h6','code','pre']});
-      out.innerHTML = html;
-      if (window.MathJax && MathJax.typesetPromise) {
-        MathJax.typesetPromise([out]).catch(() => {});
-      }
-    }
-    document.addEventListener('input', function(e) {
-      if (e.target && e.target.id === 'paper-content') renderPreview();
-    });
-    document.addEventListener('DOMContentLoaded', renderPreview);
-    window.addEventListener('load', renderPreview);
+    async function fetchAutomation(){try{const r=await fetch("{% url 'project_automation_status' pk=project.pk %}?include_steps=1",{headers:{'Accept':'application/json'}});const d=await r.json();const el=document.getElementById('automation-status');if(!el)return;const j=d.job,ts=d.tasks||[];let h='';if(!j){h='<div class="text-warm-400">No automation job found.</div>';}else{const sc={success:'text-emerald-600',failed:'text-red-600',running:'text-blue-600',pending:'text-amber-600'};h+='<div class="mb-4 flex items-center gap-2"><span class="text-[11px] font-semibold text-warm-400 uppercase tracking-wider">Job</span><span class="text-[12px] font-bold '+(sc[j.status]||'text-warm-600')+'">'+j.status+'</span></div><div class="space-y-2">';for(const t of ts){const c=sc[t.status]||'text-warm-600';const bg=t.status==='success'?'bg-emerald-50 border-emerald-100':t.status==='failed'?'bg-red-50 border-red-100':t.status==='running'?'bg-blue-50 border-blue-100':'bg-warm-50 border-warm-100';h+='<div class="rounded-xl '+bg+' border px-4 py-3"><div class="flex items-center justify-between"><div><p class="text-[13px] font-semibold text-warm-800 capitalize">'+t.name.replaceAll('_',' ')+'</p>';if(t.message)h+='<p class="text-[11px] text-warm-500 mt-0.5">'+t.message+'</p>';h+='</div><span class="text-[11px] font-bold '+c+'">'+t.status+(t.progress?' ('+t.progress+'%)':'')+'</span></div>';if(t.steps&&t.steps.length){h+='<div class="mt-2 ml-4 space-y-1">';for(const s of t.steps){const icon=s.step_type==='tool_call'?'\uD83D\uDD27':s.step_type==='thinking'?'\uD83D\uDCAD':'\uD83D\uDCE4';h+='<div class="text-[11px] text-warm-500 flex items-start gap-1.5"><span>'+icon+'</span><div>'+(s.tool_name?'<span class="font-semibold text-warm-600">'+s.tool_name+'</span> ':'')+'<span>'+s.content.substring(0,200)+'</span></div></div>';}h+='</div>';}h+='</div>';}h+='</div>';}el.innerHTML=h;}catch(e){const el=document.getElementById('automation-status');if(el)el.innerHTML='<div class="text-red-600">Failed to load</div>';}}
+    // Re-run stage
+    async function rerunStage(stage) {
+      const statusEl = document.getElementById('rerun-status');
+      const btns = document.querySelectorAll('.rerun-btn');
+      btns.forEach(b => b.disabled = true);
+      statusEl.innerHTML = '<span class="text-accent-600 font-medium">Starting ' + stage.replace('_', ' ') + '...</span>';
 
-    // Automation status polling
-    async function fetchAutomation() {
       try {
-        const res = await fetch("{% url 'project_automation_status' pk=project.pk %}", { headers: { 'Accept': 'application/json' } });
-        const data = await res.json();
-        const el = document.getElementById('automation-status');
-        if (!el) return;
-        const job = data.job;
-        const tasks = data.tasks || [];
-        let html = '';
-        if (!job) {
-          html += '<div class="text-gray-500">No automation job found for this project.</div>';
-        } else {
-          html += `<div class="mb-2">Job status: <span class="font-medium">${job.status}</span></div>`;
-          html += '<div class="divide-y divide-gray-200">';
-          for (const t of tasks) {
-            html += `<div class="py-2 flex items-start justify-between">
-              <div>
-                <div class="font-medium text-gray-900">${t.name.replaceAll('_',' ')}</div>
-                <div class="text-xs text-gray-600">${t.message || ''}</div>
-              </div>
-              <div class="text-xs text-gray-500">${t.status} ${t.progress ? '('+t.progress+'%)' : ''}</div>
-            </div>`;
-          }
-          html += '</div>';
-        }
-        el.innerHTML = html;
-      } catch (e) {
-        const el = document.getElementById('automation-status');
-        if (el) el.innerHTML = '<div class="text-red-600">Failed to load status</div>';
-      }
-    }
-
-    document.getElementById('automation-refresh')?.addEventListener('click', fetchAutomation);
-    // Poll every 5s when automation tab is visible
-    let automationTimer = null;
-    const observer = new MutationObserver(() => {
-      const tab = document.getElementById('tab-automation');
-      if (!tab) return;
-      const visible = !tab.classList.contains('hidden');
-      if (visible && !automationTimer) {
-        fetchAutomation();
-        automationTimer = setInterval(fetchAutomation, 5000);
-      }
-      if (!visible && automationTimer) {
-        clearInterval(automationTimer);
-        automationTimer = null;
-      }
-    });
-    observer.observe(document.getElementById('project-tabs'), { attributes: true, subtree: true });
-
-    // Assistant chat
-    const chatEl = document.getElementById('assistant-chat');
-    const inputEl = document.getElementById('assistant-input');
-    const formEl = document.getElementById('assistant-form');
-    const history = [];
-
-    function appendMsg(role, text) {
-      if (!chatEl) return;
-      const wrap = document.createElement('div');
-      wrap.className = 'flex ' + (role === 'user' ? 'justify-end' : 'justify-start');
-      const bubble = document.createElement('div');
-      bubble.className = 'max-w-[80%] rounded px-3 py-2 text-sm ' + (role === 'user' ? 'bg-brand-600 text-white' : 'bg-white border border-gray-200 text-gray-900');
-      bubble.textContent = text;
-      wrap.appendChild(bubble);
-      chatEl.appendChild(wrap);
-      chatEl.scrollTop = chatEl.scrollHeight;
-    }
-
-    async function sendMessage(msg) {
-      appendMsg('user', msg);
-      try {
-        const res = await fetch("{% url 'project_chat' pk=project.pk %}", {
+        const res = await fetch('/projects/{{ project.pk }}/rerun-stage/', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token_value }}'
-          },
-          body: JSON.stringify({ message: msg, history })
+          headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': '{{ csrf_token_value }}'},
+          body: 'stage=' + stage,
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Request failed');
-        const reply = data.reply || '';
-        history.push({ role: 'user', content: msg });
-        history.push({ role: 'assistant', content: reply });
-        appendMsg('assistant', reply);
-      } catch (e) {
-        appendMsg('assistant', 'Error: ' + (e && e.message ? e.message : 'Failed'));
+        if (data.status === 'started') {
+          statusEl.innerHTML = '<span class="text-accent-600 font-medium">Running ' + stage.replace('_', ' ') + '... Check status above.</span>';
+          fetchAutomation();
+        } else {
+          statusEl.innerHTML = '<span class="text-red-600">Error: ' + (data.error || 'Unknown') + '</span>';
+        }
+      } catch(e) {
+        statusEl.innerHTML = '<span class="text-red-600">Failed: ' + e.message + '</span>';
+      } finally {
+        btns.forEach(b => b.disabled = false);
+      }
+    }
+    window.rerunStage = rerunStage;
+
+    document.getElementById('automation-refresh')?.addEventListener('click',fetchAutomation);
+    let at=null;
+    let chatLoaded=false;
+    async function loadChatHistory(){if(chatLoaded)return;chatLoaded=true;try{const res=await fetch("{% url 'project_chat_history' pk=project.pk %}");const data=await res.json();for(const m of(data.messages||[])){appendMsg(m.role,m.content);history.push({role:m.role,content:m.content});}}catch(e){console.error('Failed to load chat history',e);}}
+    // Use click listener instead of MutationObserver (MutationObserver on subtree fires too often)
+    document.addEventListener('click', function(e) {
+      const btn = e.target.closest('.tab-btn');
+      if (!btn) return;
+      const tab = btn.dataset.tab;
+      if (tab === 'automation') { fetchAutomation(); if (!at) at = setInterval(fetchAutomation, 5000); }
+      else if (at) { clearInterval(at); at = null; }
+      if (tab === 'assistant') loadChatHistory();
+    });
+
+    const chatEl=document.getElementById('assistant-chat'),inputEl=document.getElementById('assistant-input'),formEl=document.getElementById('assistant-form'),history=[];
+    function appendMsg(role,text){if(!chatEl)return;const w=document.createElement('div');w.className='flex '+(role==='user'?'justify-end':'justify-start');const b=document.createElement('div');b.className='max-w-[80%] rounded-2xl px-4 py-2.5 text-[13px] leading-relaxed '+(role==='user'?'bg-accent-600 text-white':'bg-white border border-warm-200 text-warm-700 shadow-soft');b.textContent=text;w.appendChild(b);chatEl.appendChild(w);chatEl.scrollTop=chatEl.scrollHeight;}
+    async function sendMessage(msg){appendMsg('user',msg);try{const r=await fetch("{% url 'project_chat' pk=project.pk %}",{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':'{{ csrf_token_value }}'},body:JSON.stringify({message:msg,history})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Failed');const reply=d.reply||'';history.push({role:'user',content:msg});history.push({role:'assistant',content:reply});appendMsg('assistant',reply);}catch(e){appendMsg('assistant','Error: '+(e?.message||'Failed'));}}
+    formEl?.addEventListener('submit',e=>{e.preventDefault();const v=(inputEl?.value||'').trim();if(!v)return;inputEl.value='';sendMessage(v);});
+
+    // Section editor
+    const sectionEditor = document.getElementById('section-editor');
+    const sectionsList = document.getElementById('sections-list');
+    let sectionsData = [];
+
+    async function loadSections() {
+      try {
+        const res = await fetch("{% url 'projects_sections_json' pk=project.pk %}");
+        const data = await res.json();
+        if (data.has_sections) {
+          sectionsData = data.sections;
+          renderSections();
+          sectionEditor.style.display = '';
+        }
+      } catch(e) { console.error('Failed to load sections', e); }
+    }
+
+    function renderSections() {
+      if (!sectionsList) return;
+      sectionsList.innerHTML = '';
+      for (const s of sectionsData) {
+        const kindColors = {
+          introduction: 'bg-blue-50 text-blue-700 ring-blue-200',
+          methods: 'bg-purple-50 text-purple-700 ring-purple-200',
+          results: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+          discussion: 'bg-amber-50 text-amber-700 ring-amber-200',
+          conclusion: 'bg-cyan-50 text-cyan-700 ring-cyan-200',
+          references: 'bg-warm-100 text-warm-600 ring-warm-200',
+        };
+        const kindCls = kindColors[s.kind] || 'bg-warm-100 text-warm-500 ring-warm-200';
+        const div = document.createElement('div');
+        div.className = 'rounded-xl border border-warm-200 overflow-hidden';
+        div.innerHTML = `
+          <div class="px-4 py-3 bg-warm-50/50 border-b border-warm-100 flex items-center justify-between cursor-pointer" data-toggle-section="${s.id}">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center rounded-full px-2 py-[1px] text-[9px] font-bold uppercase tracking-wider ring-1 ${kindCls}">${s.kind}</span>
+              <span class="text-[13px] font-semibold text-warm-800">${s.title}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] text-warm-400">${s.content.length} chars</span>
+              <svg class="h-3.5 w-3.5 text-warm-400 transition-transform" data-chevron="${s.id}" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            </div>
+          </div>
+          <div class="hidden" data-section-body="${s.id}">
+            <textarea data-section-content="${s.id}" rows="8" class="w-full px-4 py-3 text-[13px] font-mono text-warm-800 border-0 focus:ring-0 resize-y bg-white">${s.content.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
+            <div class="px-4 py-2 bg-warm-50/50 border-t border-warm-100 flex items-center justify-between">
+              <div id="diff-info-${s.id}" class="text-[11px] text-warm-400"></div>
+              <div class="flex items-center gap-2">
+                <button data-save-section="${s.id}" class="rounded-lg bg-accent-600 px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-accent-700 transition">Save section</button>
+              </div>
+            </div>
+          </div>`;
+        sectionsList.appendChild(div);
+      }
+
+      // Toggle expand/collapse
+      sectionsList.addEventListener('click', function(e) {
+        const toggle = e.target.closest('[data-toggle-section]');
+        if (toggle) {
+          const id = toggle.dataset.toggleSection;
+          const body = sectionsList.querySelector(`[data-section-body="${id}"]`);
+          const chevron = sectionsList.querySelector(`[data-chevron="${id}"]`);
+          if (body) body.classList.toggle('hidden');
+          if (chevron) chevron.classList.toggle('rotate-180');
+        }
+        const saveBtn = e.target.closest('[data-save-section]');
+        if (saveBtn) {
+          const id = saveBtn.dataset.saveSection;
+          const textarea = sectionsList.querySelector(`[data-section-content="${id}"]`);
+          if (textarea) saveSection(id, textarea.value);
+        }
+      });
+    }
+
+    async function saveSection(sectionId, content) {
+      const diffInfo = document.getElementById('diff-info-' + sectionId);
+      try {
+        const fd = new FormData();
+        fd.append('content', content);
+        const res = await fetch(`/projects/{{ project.pk }}/paper/sections/${sectionId}/update/`, {
+          method: 'POST',
+          headers: {'X-CSRFToken': '{{ csrf_token_value }}'},
+          body: fd,
+        });
+        const data = await res.json();
+        if (diffInfo) {
+          if (data.diff_lines > 0) {
+            diffInfo.innerHTML = `<span class="text-emerald-600 font-medium">Saved</span> &middot; ${data.diff_lines} lines changed`;
+          } else {
+            diffInfo.innerHTML = '<span class="text-warm-500">No changes</span>';
+          }
+        }
+      } catch(e) {
+        if (diffInfo) diffInfo.innerHTML = '<span class="text-red-600">Save failed</span>';
       }
     }
 
-    formEl?.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const v = (inputEl?.value || '').trim();
-      if (!v) return;
-      inputEl.value = '';
-      sendMessage(v);
+    // Load sections when paper tab opens
+    document.addEventListener('DOMContentLoaded', function() {
+      loadSections();
+    });
+
+    document.getElementById('close-section-editor')?.addEventListener('click', function() {
+      sectionEditor.style.display = 'none';
+    });
+  })();
+
+  // Citation graph — draw once when literature tab first becomes visible
+  (function() {
+    const canvas = document.getElementById('citation-canvas');
+    if (!canvas) return;
+    let drawn = false;
+    function drawGraph() {
+      if (drawn) return;
+      const tab = document.getElementById('tab-literature');
+      if (!tab || tab.classList.contains('hidden')) return;
+      drawn = true;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      if (rect.width < 10) return; // not visible yet
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      const ctx = canvas.getContext('2d');
+      const titles = [{% for c in citations %}'{{ c.literature.title|truncatechars:20|escapejs }}'{% if not forloop.last %},{% endif %}{% endfor %}];
+      if (!titles.length) {
+        ctx.fillStyle = '#a8a29e';
+        ctx.font = '13px Inter, system-ui, sans-serif';
+        ctx.fillText('No citations to visualize', 20, 30);
+        return;
+      }
+      const cx = canvas.width / 2, cy = canvas.height / 2;
+      const radius = Math.min(cx, cy) * 0.65, nodeRadius = 6;
+      const nodes = titles.map(function(t, i) {
+        const angle = (2 * Math.PI * i) / titles.length - Math.PI / 2;
+        return { x: cx + radius * Math.cos(angle), y: cy + radius * Math.sin(angle), title: t };
+      });
+      ctx.strokeStyle = '#d6d3d1'; ctx.lineWidth = 1;
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          if (j - i === 1 || (i === 0 && j === nodes.length - 1)) {
+            ctx.beginPath(); ctx.moveTo(nodes[i].x, nodes[i].y); ctx.lineTo(nodes[j].x, nodes[j].y); ctx.stroke();
+          }
+        }
+      }
+      for (const n of nodes) {
+        ctx.beginPath(); ctx.arc(n.x, n.y, nodeRadius, 0, 2 * Math.PI);
+        ctx.fillStyle = '#0d9488'; ctx.fill();
+        ctx.fillStyle = '#44403c'; ctx.font = '10px Inter, system-ui, sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(n.title, n.x, n.y + nodeRadius + 12);
+      }
+    }
+    // Only listen for tab-btn clicks, not a MutationObserver on the whole tree
+    document.addEventListener('click', function(e) {
+      if (e.target.closest('[data-tab="literature"]')) setTimeout(drawGraph, 50);
     });
   })();
 </script>
-
-<!-- Sanitizer, MathJax -->
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
-<script>
-  window.MathJax = {
-    tex: {
-      inlineMath: [['\\(','\\)'], ['$', '$']],
-      displayMath: [['\\[','\\]'], ['$$','$$']],
-      packages: {'[+]': ['base', 'ams', 'noerrors', 'noundefined']}
-    },
-    options: { renderActions: { addMenu: [] } }
-  };
-</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']],displayMath:[['\\[','\\]'],['$$','$$']],packages:{'[+]':['base','ams','noerrors','noundefined']}},options:{renderActions:{addMenu:[]}}};</script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
 {% endblock %}
-
-

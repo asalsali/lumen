@@ -86,7 +86,7 @@ async def search_arxiv(client: HttpClient, query: str, start: int = 0, max_resul
         "sortOrder": sort_order,
     }
     # arXiv returns Atom XML
-    text = await client.get_text(ARXIV_API_URL, params=params, headers={"User-Agent": "ForgeLore/0.1 (mailto:contact@example.com)"})
+    text = await client.get_text(ARXIV_API_URL, params=params, headers={"User-Agent": "Lumen/0.2 (mailto:contact@example.com)"})
     root = ET.fromstring(text)
     results: List[PaperRecord] = []
     for entry in root.findall('{http://www.w3.org/2005/Atom}entry'):
@@ -104,7 +104,7 @@ async def fetch_arxiv_by_id(client: HttpClient, arxiv_id: str) -> Optional[Paper
         "id_list": arxiv_id,
         "max_results": 1,
     }
-    text = await client.get_text(ARXIV_API_URL, params=params, headers={"User-Agent": "ForgeLore/0.1 (mailto:contact@example.com)"})
+    text = await client.get_text(ARXIV_API_URL, params=params, headers={"User-Agent": "Lumen/0.2 (mailto:contact@example.com)"})
     root = ET.fromstring(text)
     entry = root.find('{http://www.w3.org/2005/Atom}entry')
     if entry is None:

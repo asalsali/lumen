@@ -70,7 +70,7 @@ class TestAgentManagers(TestCase):
     @tag("compilation_manager", "agents_sdk")
     def test_compilation_manager(self):
         from agents_sdk.compilation_agents.manager import CompilationServiceManager
-        from agents_sdk.compilation_agents.agents.compilation_agent import CompilationPlan, PaperDiff
+        from agents_sdk.compilation_agents.agents.compilation_agent import FullLatexPaper
 
         paper = Paper.objects.get(project=self.project)
         paper.content_raw = "Intro...\nTARGET\n...End"
@@ -78,14 +78,14 @@ class TestAgentManagers(TestCase):
 
         with patch("agents_sdk.compilation_agents.manager.Runner") as MockRunner:
             r = MockRunner.return_value
-            r.run.return_value = SimpleNamespace(final_output=CompilationPlan(diffs=[
-                PaperDiff(target="TARGET", replacement="REPLACED")
-            ]))
+            r.run.return_value = SimpleNamespace(final_output=FullLatexPaper(
+                latex="\\documentclass{article}\n\\begin{document}\nREPLACED content\n\\end{document}"
+            ))
             out = CompilationServiceManager().run_for_project_sync(self.project.id)
 
         paper.refresh_from_db()
         self.assertEqual(out.project_id, self.project.id)
-        self.assertGreaterEqual(out.applied_diffs, 1)
+        self.assertTrue(out.changed)
         self.assertIn("REPLACED", paper.content_raw)
 
     @tag("hypothesis_testing_manager", "agents_sdk")
@@ -165,12 +165,12 @@ class TestAgentManagers(TestCase):
 
         # 4) Compilation
         from agents_sdk.compilation_agents.manager import CompilationServiceManager
-        from agents_sdk.compilation_agents.agents.compilation_agent import CompilationPlan, PaperDiff
+        from agents_sdk.compilation_agents.agents.compilation_agent import FullLatexPaper
         with patch("agents_sdk.compilation_agents.manager.Runner") as MR4:
             r4 = MR4.return_value
-            r4.run.return_value = SimpleNamespace(final_output=CompilationPlan(diffs=[
-                PaperDiff(target="TARGET", replacement="REPLACED")
-            ]))
+            r4.run.return_value = SimpleNamespace(final_output=FullLatexPaper(
+                latex="\\documentclass{article}\n\\begin{document}\nREPLACED content\n\\end{document}"
+            ))
             CompilationServiceManager().run_for_project_sync(self.project.id)
 
         # Assertions after full cycle

@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import random
-import inspect
 from typing import List, Optional
 
 from asgiref.sync import async_to_sync, sync_to_async
 from pydantic import BaseModel, Field
 
 from agents import Runner
+
+from ..retry import run_with_retry
 
 from main.models import Project, Paper, Note
 
@@ -105,6 +106,7 @@ Task: Improve and formalize the research ask and abstract.
         )
         formalized: FormalizedAsk = formalizer_result.final_output  # type: ignore
         logger.info(f"formalizer agent result {formalizer_result}")
+        logger.info(f"[STEP] Formalizer improved abstract: {(formalized.improved_abstract or '')[:100]}")
 
         improved_abstract = (formalized.improved_abstract or '').strip()
         if improved_abstract and improved_abstract != (paper.abstract or '').strip():
@@ -130,9 +132,12 @@ Task: Use your available tools to discover and, when appropriate, link relevant 
 - If a found source is not accessible by reading tools, skip linking it.
 - When linking, ensure the link is associated with Project ID {project.id}.
 """
+        logger.info("[STEP] Starting literature search across arXiv, Semantic Scholar, DOAJ, OpenAlex")
         logger.info(f"running literature reviewer agent")
         reviewer_result = await self._run(literature_reviewer_agent, reviewer_input, max_turns=50)
         logger.info(f"literature reviewer agent result {reviewer_result}")
+        review_output: LiteratureReviewOutcome = reviewer_result.final_output  # type: ignore
+        logger.info(f"[STEP] Found and linked {len(getattr(review_output, 'selected', []))} papers")
 
         # Refresh literature after potential linking
         literature_meta = await list_literature(project_id)
@@ -160,10 +165,12 @@ Task: Read accessible linked sources using your tools and produce a focused synt
 - Do not invent sources; cite by title/year only when you have tool-derived content.
 - Be concise and structured.
 """
+        logger.info("[STEP] Synthesizing literature findings")
         logger.info(f"running literature summarizer agent")
         summarizer_result = await self._run(literature_summarizer_agent, summarizer_input, max_turns=50)
         logger.info(f"literature summarizer agent result {summarizer_result}")
         summary: ProjectFocusedSummary = summarizer_result.final_output  # type: ignore
+        logger.info(f"[STEP] Created literature summary note ({len(summary.combined_summary)} chars)")
 
         # Save as Note with a 4-digit id suffix in title
         note_title = f"Literature Summary {random.randint(1000, 9999)}"
@@ -189,10 +196,12 @@ Task: Propose a small set of high-quality, testable hypotheses that would advanc
 - Where possible, ground each hypothesis in linked literature or experiment context.
 - Use your tools to create hypotheses in the system; prioritize quality over quantity.
 """
+        logger.info("[STEP] Generating research hypotheses")
         logger.info(f"running hypothesizer agent")
         hypotheses_result = await self._run(hypothesizer_agent, hypothesizer_input, max_turns=50)
         logger.info(f"hypothesizer agent result {hypotheses_result}")
         hypotheses_output: HypothesesOutput = hypotheses_result.final_output  # type: ignore
+        logger.info(f"[STEP] Proposed {len(hypotheses_output.created or [])} hypotheses")
 
         # Return snapshot of created/updated items
         return InitialResearchOutput(
@@ -212,11 +221,8 @@ Task: Propose a small set of high-quality, testable hypotheses that would advanc
         return async_to_sync(go)()
 
     async def _run(self, *args, **kwargs):
-        """Call Runner.run and support both async and sync mocks."""
-        result = self.runner.run(*args, **kwargs)
-        if inspect.isawaitable(result):
-            return await result
-        return result
+        """Call Runner.run with automatic retry on rate-limit errors."""
+        return await run_with_retry(self.runner, *args, **kwargs)
 
     
 

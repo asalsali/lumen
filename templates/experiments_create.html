@@ -1,168 +1,117 @@
 {% extends "base.html" %}
 
-{% block title %}ForgeLore — New Experiment{% endblock %}
+{% block title %}Lumen — New Experiment{% endblock %}
 
 {% block page_header %}
-<div class="flex items-center justify-between">
-  <div>
-    <h1 class="text-xl font-semibold tracking-tight">New experiment</h1>
-    <p class="mt-1 text-sm text-gray-600">Create and configure a code-based simulation experiment.</p>
-  </div>
-  <div class="flex items-center gap-2">
-    <a href="{% url 'experiments_list' %}" class="inline-flex items-center rounded-md border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50">
-      <svg class="mr-2 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z" clip-rule="evenodd"/>
-      </svg>
-      Back to Experiments
-    </a>
-  </div>
-</div>
+<h1 class="text-[36px] font-serif font-bold text-[#2d2a26] tracking-[-0.02em]">New experiment</h1>
 {% endblock %}
 
 {% block content %}
-<form method="post" class="space-y-6">
+<!-- Template picker -->
+<div class="mt-6 mb-8">
+  <p class="text-[13px] text-[#787774] mb-3">Start from a template, or scroll down to write from scratch.</p>
+  <div id="template-cards" class="flex gap-2 overflow-x-auto pb-1">
+    <div class="h-8 w-40 rounded bg-[#f7f6f3]"></div>
+    <div class="h-8 w-40 rounded bg-[#f7f6f3]"></div>
+    <div class="h-8 w-40 rounded bg-[#f7f6f3]"></div>
+    <div class="h-8 w-40 rounded bg-[#f7f6f3]"></div>
+  </div>
+</div>
+
+<form method="post" class="max-w-[560px] space-y-5">
   {% csrf_token %}
   {{ form.non_field_errors }}
 
-  <!-- Basic Information -->
-  <div class="rounded-lg border border-gray-200 bg-white p-6">
-    <div class="flex items-center gap-2 mb-4">
-      <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-      </svg>
-      <h2 class="text-lg font-medium text-gray-900">Basic Information</h2>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <label for="{{ form.project.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-          <svg class="inline mr-1 h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
-          </svg>
-          Project
-        </label>
-        {{ form.project }}
-        <p class="mt-1 text-xs text-gray-500">Choose the project this experiment belongs to.</p>
-      </div>
-
-      <div>
-        <label for="{{ form.language.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-          <svg class="inline mr-1 h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
-          </svg>
-          Language
-        </label>
-        {{ form.language }}
-        <p class="mt-1 text-xs text-gray-500">Programming language for your simulation code.</p>
-      </div>
-
-      <div class="md:col-span-2">
-        <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-          <svg class="inline mr-1 h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          Experiment Name
-        </label>
-        {{ form.name }}
-        <p class="mt-1 text-xs text-gray-500">Give your experiment a clear, descriptive name.</p>
-      </div>
-
-      <div class="md:col-span-2">
-        <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-          <svg class="inline mr-1 h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-          </svg>
-          Description <span class="text-gray-400">(optional)</span>
-        </label>
-        {{ form.description }}
-        <p class="mt-1 text-xs text-gray-500">Describe what this experiment tests or simulates.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Parameters -->
-  <div class="rounded-lg border border-gray-200 bg-white p-6">
-    <div class="flex items-center gap-2 mb-4">
-      <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-        <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
-      </svg>
-      <h2 class="text-lg font-medium text-gray-900">Parameters</h2>
-    </div>
-
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
     <div>
-      <label for="{{ form.parameters.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-        <svg class="inline mr-1 h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        Configuration Parameters <span class="text-gray-400">(JSON, optional)</span>
-      </label>
-      {{ form.parameters }}
-      <div class="mt-2 text-xs text-gray-500 space-y-1">
-        <p>Define input parameters as JSON. Your code can access these via the <code>params</code> variable.</p>
-        <p class="font-medium">Example:</p>
-        <pre class="bg-gray-50 p-2 rounded text-xs overflow-x-auto">{"iterations": 1000, "temperature": 298.15, "method": "monte_carlo"}</pre>
-      </div>
+      <label for="{{ form.project.id_for_label }}" class="block text-[13px] text-[#787774] mb-1">Project</label>
+      {{ form.project }}
     </div>
-  </div>
-
-  <!-- Code -->
-  <div class="rounded-lg border border-gray-200 bg-white p-6">
-    <div class="flex items-center gap-2 mb-4">
-      <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
-      </svg>
-      <h2 class="text-lg font-medium text-gray-900">Simulation Code</h2>
-    </div>
-
     <div>
-      <label for="{{ form.code.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-        <svg class="inline mr-1 h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
-        </svg>
-        Code
-      </label>
-      {{ form.code }}
-      <div class="mt-2 text-xs text-gray-500 space-y-2">
-        <div class="bg-blue-50 border border-blue-200 rounded p-3">
-          <div class="flex items-start gap-2">
-            <svg class="h-4 w-4 text-blue-600 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-            </svg>
-            <div>
-              <p class="font-medium text-blue-900">Recording Results</p>
-              <p class="text-blue-800">Call <code>record_result(data)</code> to save JSON results. Access parameters via <code>params</code>.</p>
-            </div>
-          </div>
-        </div>
-        <p><strong>Example:</strong></p>
-        <pre class="bg-gray-50 p-2 rounded text-xs overflow-x-auto">import json
-
-# Access parameters
-iterations = params.get('iterations', 100)
-temperature = params.get('temperature', 298.15)
-
-# Your simulation logic here
-result = {"efficiency": 0.85, "error_rate": 0.02}
-
-# Record the result
-record_result(result)</pre>
-      </div>
+      <label for="{{ form.language.id_for_label }}" class="block text-[13px] text-[#787774] mb-1">Language</label>
+      {{ form.language }}
     </div>
   </div>
 
-  <!-- Submit -->
-  <div class="flex items-center justify-end gap-3 pt-4">
-    <a href="{% url 'experiments_list' %}" class="inline-flex items-center rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50">
-      Cancel
-    </a>
-    <button type="submit" class="inline-flex items-center rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2">
-      <svg class="mr-2 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-      </svg>
-      Create Experiment
-    </button>
+  <div>
+    <label for="{{ form.name.id_for_label }}" class="block text-[13px] text-[#787774] mb-1">Experiment name</label>
+    {{ form.name }}
+  </div>
+
+  <div>
+    <label for="{{ form.description.id_for_label }}" class="block text-[13px] text-[#787774] mb-1">Description <span class="text-[#787774]">(optional)</span></label>
+    {{ form.description }}
+  </div>
+
+  <div class="pt-2 border-t border-[#e3e2de]">
+    <label for="{{ form.parameters.id_for_label }}" class="block text-[13px] text-[#787774] mb-1">Parameters <span class="text-[#787774]">(JSON, optional)</span></label>
+    {{ form.parameters }}
+    <p class="mt-1 text-[12px] text-[#787774]">Your code can access these via the <code class="bg-[#f7f6f3] px-1 py-0.5 rounded text-[11px]">params</code> variable.</p>
+  </div>
+
+  <div class="pt-2 border-t border-[#e3e2de]">
+    <label for="{{ form.code.id_for_label }}" class="block text-[13px] text-[#787774] mb-1">Code</label>
+    {{ form.code }}
+    <p class="mt-1 text-[12px] text-[#787774]">Call <code class="bg-[#f7f6f3] px-1 py-0.5 rounded text-[11px]">record_result(data)</code> to save JSON results. Access parameters via <code class="bg-[#f7f6f3] px-1 py-0.5 rounded text-[11px]">params</code>.</p>
+  </div>
+
+  <div class="mt-8 flex items-center gap-3 pt-2">
+    <button type="submit" class="rounded bg-[#8b6834] px-4 py-2 text-[14px] font-medium text-white hover:bg-[#7a5a2d] transition">Create experiment</button>
+    <a href="{% url 'experiments_list' %}" class="text-[14px] text-[#787774] hover:text-[#37352f] transition">Cancel</a>
   </div>
 </form>
 {% endblock %}
 
+{% block extra_js %}
+<script>
+(function() {
+  let templates = [];
 
+  async function loadTemplates() {
+    try {
+      const res = await fetch('/experiments/templates/');
+      const data = await res.json();
+      templates = data.templates || [];
+      const container = document.getElementById('template-cards');
+      container.innerHTML = templates.map((t, idx) => {
+        return `<button type="button" data-tpl-idx="${idx}"
+          class="shrink-0 rounded border border-[#e3e2de] bg-white px-3 py-1.5 text-[13px] text-[#37352f] hover:bg-[#efefed] transition-colors cursor-pointer">
+          ${t.name}
+        </button>`;
+      }).join('');
+    } catch(e) {
+      document.getElementById('template-cards').innerHTML = '<p class="text-[12px] text-[#787774]">Failed to load templates</p>';
+    }
+  }
+
+  document.getElementById('template-cards').addEventListener('click', function(e) {
+    const btn = e.target.closest('[data-tpl-idx]');
+    if (!btn) return;
+
+    const tpl = templates[parseInt(btn.dataset.tplIdx)];
+    if (!tpl) return;
+
+    const codeField = document.getElementById('id_code');
+    const paramsField = document.getElementById('id_parameters');
+    const nameField = document.getElementById('id_name');
+
+    if (codeField) codeField.value = tpl.code || '';
+    if (paramsField) paramsField.value = JSON.stringify(tpl.parameters || {}, null, 2);
+    if (nameField && !nameField.value) nameField.value = tpl.name;
+
+    // Highlight selected
+    document.querySelectorAll('[data-tpl-idx]').forEach(b => {
+      b.classList.remove('border-[#8b6834]', 'bg-[#faf6ef]');
+      b.classList.add('border-[#e3e2de]', 'bg-white');
+    });
+    btn.classList.remove('border-[#e3e2de]', 'bg-white');
+    btn.classList.add('border-[#8b6834]', 'bg-[#faf6ef]');
+
+    // Scroll to code section
+    codeField?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  loadTemplates();
+})();
+</script>
+{% endblock %}

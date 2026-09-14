@@ -1,42 +1,48 @@
 {% extends "base.html" %}
 
-{% block title %}ForgeLore — Experiments{% endblock %}
+{% block title %}Lumen — Experiments{% endblock %}
 
 {% block page_header %}
 <div class="flex items-center justify-between">
-  <div>
-    <h1 class="text-xl font-semibold tracking-tight">Experiments</h1>
-    <p class="mt-1 text-sm text-gray-600">Create and run code-based simulations tied to projects.</p>
-  </div>
-  <a href="{% url 'experiments_create' %}" class="inline-flex items-center rounded-md bg-brand-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-700">New experiment</a>
+  <h1 class="text-[36px] font-serif font-bold text-[#2d2a26] tracking-[-0.02em]">Experiments</h1>
+  <a href="{% url 'experiments_create' %}" class="text-[14px] text-[#8b6834] hover:underline">+ New experiment</a>
 </div>
 {% endblock %}
 
 {% block content %}
-<div class="rounded-lg border border-gray-200 bg-white">
-  <table class="min-w-full text-sm">
-    <thead class="bg-gray-50 text-gray-600">
-      <tr>
-        <th class="px-4 py-2 text-left font-semibold">Name</th>
-        <th class="px-4 py-2 text-left font-semibold">Project</th>
-        <th class="px-4 py-2 text-left font-semibold">Status</th>
-        <th class="px-4 py-2 text-left font-semibold">Updated</th>
+{% if simulations %}
+<div class="mt-6">
+  <table class="w-full text-left">
+    <thead>
+      <tr class="border-b border-[#e3e2de]">
+        <th class="pb-2 text-[12px] font-semibold text-[#787774] uppercase tracking-wide">Name</th>
+        <th class="pb-2 text-[12px] font-semibold text-[#787774] uppercase tracking-wide">Project</th>
+        <th class="pb-2 text-[12px] font-semibold text-[#787774] uppercase tracking-wide">Status</th>
+        <th class="pb-2 text-[12px] font-semibold text-[#787774] uppercase tracking-wide">Updated</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody class="divide-y divide-[#e3e2de]">
       {% for s in simulations %}
-      <tr class="border-t border-gray-100">
-        <td class="px-4 py-2"><a href="{% url 'experiments_detail' pk=s.pk %}" class="text-brand-700 hover:underline">{{ s.name }}</a></td>
-        <td class="px-4 py-2">{{ s.project.name }}</td>
-        <td class="px-4 py-2">{{ s.status }}</td>
-        <td class="px-4 py-2">{{ s.updated_at|date:"Y-m-d H:i" }}</td>
+      <tr class="hover:bg-[#f7f6f3] transition-colors">
+        <td class="py-2.5"><a href="{% url 'experiments_detail' pk=s.pk %}" class="text-[14px] font-medium text-[#37352f] hover:text-[#8b6834] transition">{{ s.name }}</a></td>
+        <td class="py-2.5 text-[14px] text-[#787774]">{{ s.project.name }}</td>
+        <td class="py-2.5">
+          <span class="inline-flex items-center gap-1.5 text-[12px] text-[#787774]">
+            <span class="h-2 w-2 rounded-full {% if s.status == 'success' %}bg-[#4dab9a]{% elif s.status == 'failed' %}bg-[#eb5757]{% elif s.status == 'running' %}bg-[#8b6834]{% elif s.status == 'pending' %}bg-[#dfab01]{% else %}bg-[#e3e2de]{% endif %}"></span>
+            {{ s.status }}
+          </span>
+        </td>
+        <td class="py-2.5 text-[13px] text-[#787774] tabular-nums">{{ s.updated_at|timesince }} ago</td>
       </tr>
-      {% empty %}
-      <tr class="border-t border-gray-100"><td colspan="4" class="px-4 py-4 text-gray-500">No experiments yet.</td></tr>
       {% endfor %}
     </tbody>
   </table>
-  </div>
+</div>
+{% else %}
+<div class="mt-12 py-12 text-center">
+  <h3 class="text-[18px] font-semibold text-[#37352f]">No experiments yet</h3>
+  <p class="mt-2 text-[14px] text-[#787774] max-w-sm mx-auto">Experiments test your hypotheses with real Python code -- Monte Carlo simulations, statistical tests, and data analysis.</p>
+  <a href="{% url 'experiments_create' %}" class="mt-5 inline-block rounded bg-[#8b6834] px-4 py-2 text-[14px] font-medium text-white hover:bg-[#7a5a2d] transition">New experiment</a>
+</div>
+{% endif %}
 {% endblock %}
-
-

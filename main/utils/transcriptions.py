@@ -1,9 +1,14 @@
 from __future__ import annotations
 
 import io
+import logging
+import re
+import time
 from typing import BinaryIO, Optional, Union
 
-from openai import OpenAI
+from openai import OpenAI, RateLimitError
+
+logger = logging.getLogger(__name__)
 
 
 _client: Optional[OpenAI] = None
@@ -66,7 +71,20 @@ def transcribe_file_like(file_obj: Union[BinaryIO, any], *, response_format: str
     if prompt:
         kwargs["prompt"] = prompt
 
-    result = client.audio.transcriptions.create(**kwargs)
-
-    # SDK returns an object with `.text` even for text response_format
-    return getattr(result, "text", "") or ""
+    max_retries = 5
+    base_delay = 2
+    for attempt in range(max_retries + 1):
+        try:
+            result = client.audio.transcriptions.create(**kwargs)
+            return getattr(result, "text", "") or ""
+        except RateLimitError as exc:
+            if attempt >= max_retries:
+                raise
+            # Parse retry-after from error message
+            match = re.search(r"try again in (\d+(?:\.\d+)?)s", str(exc), re.IGNORECASE)
+            delay = float(match.group(1)) if match else base_delay * (2 ** attempt)
+            logger.warning("Transcription rate limit (attempt %d/%d), retrying in %.1fs", attempt + 1, max_retries, delay)
+            # Reset file position for retry
+            if hasattr(actual_file, 'seek'):
+                actual_file.seek(0)
+            time.sleep(delay)

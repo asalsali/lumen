@@ -1,0 +1,13 @@
+.git
+.claude
+__pycache__
+*.pyc
+*.pyo
+db.sqlite3
+venv
+.env
+*.md
+!requirements.txt
+media/
+staticfiles/
+.pytest_cache

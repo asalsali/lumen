@@ -4,81 +4,69 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}ForgeLore — Dashboard{% endblock %}</title>
+  <title>{% block title %}Lumen{% endblock %}</title>
   <link rel="icon" href="{% static 'images/forge_lore_logo_only.png' %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] },
-          colors: {
-            brand: {
-              50: '#eef2ff',
-              100: '#e0e7ff',
-              600: '#4f46e5',
-              700: '#4338ca',
-              800: '#3730a3'
-            }
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['"Source Serif 4"', 'Georgia', 'serif']
           }
         }
-      },
-      darkMode: 'class'
+      }
     }
   </script>
   {% block extra_head %}{% endblock %}
-  <style>
-    html { font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans'; }
-  </style>
+  <style>html { font-family: Inter, system-ui, sans-serif; }</style>
 </head>
-<body class="h-full bg-gray-50 text-gray-900 antialiased">
+<body class="h-full bg-[#fcfbf9] text-[#1a1a1a] antialiased">
   <div class="min-h-screen flex">
     <!-- Sidebar -->
-    <aside class="hidden md:flex md:w-64 lg:w-72 xl:w-80 shrink-0 border-r border-gray-200 bg-white">
+    <aside id="sidebar" class="hidden md:flex md:w-[240px] shrink-0 bg-[#fcfbf9] border-r border-[#e5e5e5]">
       <div class="w-full md:sticky md:top-0 md:h-screen flex flex-col">
         {% include 'sidemenu.html' %}
       </div>
     </aside>
 
-    <!-- Main column -->
+    <!-- Main -->
     <div class="flex-1 min-w-0 flex flex-col">
       <!-- Top bar -->
-      <header class="sticky top-0 z-30 border-b border-gray-200 bg-white/80 backdrop-blur">
-        <div class="px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <header class="sticky top-0 z-30 bg-[#fcfbf9]/90 backdrop-blur-sm border-b border-[#e5e5e5]">
+        <div class="px-6 lg:px-10 h-12 flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <button type="button" class="md:hidden inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" aria-label="Open navigation">
-              <!-- Icon: Bars 20 -->
-              <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M3 5h14a1 1 0 100-2H3a1 1 0 000 2zm14 4H3a1 1 0 000 2h14a1 1 0 100-2zm0 6H3a1 1 0 000 2h14a1 1 0 100-2z" clip-rule="evenodd"/></svg>
+            <button id="mobile-menu-btn" type="button" class="md:hidden p-1.5 rounded text-[#6b7280] hover:bg-[#f0efec] transition" aria-label="Menu">
+              <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5h14a1 1 0 100-2H3a1 1 0 000 2zm14 4H3a1 1 0 000 2h14a1 1 0 100-2zm0 6H3a1 1 0 000 2h14a1 1 0 100-2z" clip-rule="evenodd"/></svg>
             </button>
-            <div class="relative">
-              <label for="global-search" class="sr-only">Search</label>
-              <input id="global-search" name="q" type="search" placeholder="Search projects, papers, results" class="w-64 sm:w-80 lg:w-96 rounded-md border-gray-300 bg-white pl-9 pr-3 py-2 text-sm placeholder:text-gray-400 focus:border-brand-600 focus:ring-brand-600" />
-              <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                <!-- Icon: Magnifying glass -->
-                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.387a1 1 0 01-1.414 1.414l-4.387-4.387zM14 8a6 6 0 11-12 0 6 6 0 0112 0z" clip-rule="evenodd"/></svg>
-              </div>
-            </div>
+            <form method="get" action="{% url 'global_search' %}" class="relative">
+              <input type="search" name="q" placeholder="Search..." value="{{ request.GET.q }}" class="w-48 lg:w-64 rounded-lg border border-[#e5e5e5] bg-white pl-8 pr-3 py-1.5 text-sm text-[#1a1a1a] placeholder:text-[#6b7280] focus:border-[#1e40af] focus:ring-1 focus:ring-[#1e40af]/20 focus:outline-none transition" />
+              <svg class="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#6b7280] pointer-events-none" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.387a1 1 0 01-1.414 1.414l-4.387-4.387zM14 8a6 6 0 11-12 0 6 6 0 0112 0z" clip-rule="evenodd"/></svg>
+            </form>
           </div>
           <div class="flex items-center gap-3">
-            <a href="#" class="hidden sm:inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">New research</a>
-            <button type="button" class="inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white pl-2 pr-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
-              <img src="{% static 'images/forge_lore_logo_only.png' %}" alt="" class="h-6 w-6 rounded-full">
-              <span>Account</span>
-            </button>
+            <a href="{% url 'projects_create' %}" class="hidden sm:inline-flex items-center gap-1 text-sm text-[#6b7280] hover:text-[#1a1a1a] transition">
+              <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+              New
+            </a>
+            <div class="h-7 w-7 rounded-full bg-[#f0efec] border border-[#e5e5e5] flex items-center justify-center text-[#6b7280] text-xs font-medium">
+              {% if user.is_authenticated %}{{ user.username|first|upper }}{% endif %}
+            </div>
           </div>
         </div>
       </header>
 
       <!-- Content -->
       <main class="flex-1 min-w-0">
-        <div class="px-4 sm:px-6 lg:px-8 py-6">
+        <div class="px-6 lg:px-16 py-8 max-w-4xl">
           {% if messages %}
-            <div class="mb-4 space-y-2">
+            <div class="mb-6 space-y-2">
               {% for message in messages %}
-                <div class="rounded-md border px-3 py-2 text-sm {% if message.tags == 'success' %}border-green-200 bg-green-50 text-green-800{% elif message.tags == 'error' %}border-red-200 bg-red-50 text-red-800{% elif message.tags == 'warning' %}border-yellow-200 bg-yellow-50 text-yellow-800{% else %}border-gray-200 bg-white text-gray-800{% endif %}">{{ message }}</div>
+                <div class="px-4 py-2.5 text-sm border-l-2 {% if message.tags == 'success' %}border-emerald-500 bg-white text-[#1a1a1a]{% elif message.tags == 'error' %}border-rose-500 bg-white text-[#1a1a1a]{% elif message.tags == 'warning' %}border-amber-500 bg-white text-[#1a1a1a]{% else %}bg-white border-[#e5e5e5] text-[#1a1a1a]{% endif %}">{{ message }}</div>
               {% endfor %}
             </div>
           {% endif %}
@@ -87,17 +75,24 @@
         </div>
       </main>
 
-      <footer class="border-t border-gray-200 bg-white">
-        <div class="px-4 sm:px-6 lg:px-8 py-4 text-xs text-gray-500 flex items-center justify-between">
-          <p>&copy; {% now "Y" %} ForgeLore</p>
-          <p>Academic-grade research tooling</p>
+      <footer class="border-t border-[#e5e5e5]">
+        <div class="px-6 lg:px-16 py-3 text-xs text-[#6b7280]">
+          <span>&copy; {% now "Y" %} Lumen</span>
         </div>
       </footer>
     </div>
   </div>
-
+  <script>
+  document.getElementById('mobile-menu-btn')?.addEventListener('click', function() {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+      sidebar.classList.toggle('hidden');
+      sidebar.classList.toggle('fixed');
+      sidebar.classList.toggle('inset-0');
+      sidebar.classList.toggle('z-50');
+    }
+  });
+  </script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>
-
-

@@ -1,0 +1,22 @@
+app = "lumen-research"
+primary_region = "yyz"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  DEBUG = "False"
+  ALLOWED_HOSTS = "lumen-research.fly.dev,localhost"
+  PORT = "8000"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1
