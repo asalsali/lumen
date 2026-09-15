@@ -77,7 +77,7 @@ class ChatAssistantReply(BaseModel):
 
 chat_agent = Agent(
     name="project_assistant",
-    model="gpt-5",
+    model="gpt-4o-mini",
     model_settings=ModelSettings(
         reasoning={"effort": "medium"},
         verbosity="medium",

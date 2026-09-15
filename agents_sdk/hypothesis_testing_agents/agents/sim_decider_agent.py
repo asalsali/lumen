@@ -17,7 +17,7 @@ class SimulationDecision(BaseModel):
 
 sim_decider_agent = Agent(
     name="simulation_decider",
-    model="gpt-5",
+    model="gpt-4o-mini",
     model_settings=ModelSettings(
         reasoning={
             "effort": "low"

@@ -38,7 +38,7 @@ class HypothesesOutput(BaseModel):
 
 hypothesizer_agent = Agent(
     name="hypothesizer",
-    model="gpt-5",
+    model="gpt-4o-mini",
     model_settings=ModelSettings(
         reasoning={
             "effort": "high"

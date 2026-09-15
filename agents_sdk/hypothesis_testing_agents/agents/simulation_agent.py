@@ -68,7 +68,7 @@ class SimulationResult(BaseModel):
 
 simulation_agent = Agent(
     name="simulation_runner",
-    model="gpt-5",
+    model="gpt-4o-mini",
     model_settings=ModelSettings(
         reasoning={
             "effort": "high"

@@ -29,7 +29,7 @@ class HypothesisResearch(BaseModel):
 
 research_agent = Agent(
     name="hypothesis_researcher",
-    model="gpt-5",
+    model="gpt-4o-mini",
     model_settings=ModelSettings(
         reasoning={
             "effort": "high"

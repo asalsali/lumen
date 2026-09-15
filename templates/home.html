@@ -1,33 +1,12 @@
 {% extends "landing.html" %}
 {% load static %}
-
 {% block title %}Lumen — Turn research questions into cited papers{% endblock %}
-
-{% block extra_head %}
-<style>
-  @keyframes draw { to { stroke-dashoffset: 0; } }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-  .draw-line { stroke-dasharray: 300; stroke-dashoffset: 300; animation: draw 2s ease forwards; }
-  .fade-up { animation: fadeUp 0.8s ease forwards; }
-  .fade-up-1 { animation-delay: 0.1s; opacity: 0; }
-  .fade-up-2 { animation-delay: 0.3s; opacity: 0; }
-  .fade-up-3 { animation-delay: 0.5s; opacity: 0; }
-  @keyframes pulse-dot { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
-  .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
-</style>
-{% endblock %}
-
 {% block content %}
-<!-- Hero -->
 <section class="mx-auto max-w-5xl px-6 pt-24 pb-20">
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
     <div>
-      <h1 class="font-display text-[46px] font-bold leading-[1.08] tracking-tight">
-        From question<br>to paper.
-      </h1>
-      <p class="mt-6 text-[17px] text-[#6b7280] leading-relaxed max-w-sm">
-        Describe what you want to research. Lumen finds the literature, forms hypotheses, tests them with code, and writes the manuscript.
-      </p>
+      <h1 class="font-display text-[46px] font-bold leading-[1.08] tracking-tight">From question<br>to paper.</h1>
+      <p class="mt-6 text-[17px] text-[#6b7280] leading-relaxed max-w-sm">Describe what you want to research. Lumen finds the literature, forms hypotheses, tests them with code, and writes the manuscript.</p>
       <div class="mt-10">
         {% if user.is_authenticated %}
           <a href="/dashboard/" class="inline-block text-[15px] font-medium text-white bg-[#1a1a1a] rounded-lg px-6 py-3 hover:bg-[#333] transition">Go to dashboard</a>
@@ -36,275 +15,221 @@
         {% endif %}
       </div>
     </div>
-
-    <!-- Hero graphic: Abstract research flow -->
     <div class="flex justify-center">
-      <svg viewBox="0 0 440 440" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full max-w-[440px]">
-        <defs>
-          <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e8e4df"/><stop offset="100%" stop-color="#d5d0c8"/></linearGradient>
-          <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a1a1a"/><stop offset="100%" stop-color="#333"/></linearGradient>
-          <linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4dab9a" stop-opacity="0.15"/><stop offset="100%" stop-color="#4dab9a" stop-opacity="0.05"/></linearGradient>
-        </defs>
-
-        <!-- Large background circle — the research space -->
-        <circle cx="220" cy="220" r="200" fill="url(#g3)"/>
-        <circle cx="220" cy="220" r="200" fill="none" stroke="#4dab9a" stroke-width="0.5" opacity="0.3"/>
-        <circle cx="220" cy="220" r="150" fill="none" stroke="#e5e5e5" stroke-width="0.4"/>
-        <circle cx="220" cy="220" r="100" fill="none" stroke="#e5e5e5" stroke-width="0.3"/>
-
-        <!-- Orbital paths -->
-        <ellipse cx="220" cy="220" rx="170" ry="80" fill="none" stroke="#d5d4d0" stroke-width="0.6" transform="rotate(-20 220 220)"/>
-        <ellipse cx="220" cy="220" rx="170" ry="80" fill="none" stroke="#d5d4d0" stroke-width="0.6" transform="rotate(40 220 220)"/>
-
-        <!-- Connection arcs (elegant curves, not straight lines) -->
-        <path d="M220 60 Q120 140 100 220" stroke="#c5c3be" stroke-width="1" fill="none"/>
-        <path d="M220 60 Q320 140 340 220" stroke="#c5c3be" stroke-width="1" fill="none"/>
-        <path d="M100 220 Q160 320 220 380" stroke="#c5c3be" stroke-width="1" fill="none"/>
-        <path d="M340 220 Q280 320 220 380" stroke="#c5c3be" stroke-width="1" fill="none"/>
-        <path d="M100 220 Q220 260 340 220" stroke="#c5c3be" stroke-width="0.6" fill="none" stroke-dasharray="3 3"/>
-
-        <!-- Small orbiting dots -->
-        <circle cx="155" cy="130" r="3" fill="#d5d4d0"/>
-        <circle cx="290" cy="145" r="2.5" fill="#d5d4d0"/>
-        <circle cx="130" cy="290" r="2" fill="#d5d4d0"/>
-        <circle cx="310" cy="300" r="2.5" fill="#d5d4d0"/>
-        <circle cx="180" cy="310" r="2" fill="#d5d4d0"/>
-        <circle cx="260" cy="310" r="2" fill="#d5d4d0"/>
-        <circle cx="175" cy="170" r="1.5" fill="#e5e5e5"/>
-        <circle cx="270" cy="175" r="1.5" fill="#e5e5e5"/>
-
-        <!-- Node: Question (top) — largest, darkest -->
-        <circle cx="220" cy="60" r="28" fill="url(#g2)"/>
-        <circle cx="220" cy="60" r="28" fill="none" stroke="#1a1a1a" stroke-width="0.5"/>
-        <text x="220" y="57" text-anchor="middle" font-family="Inter" font-size="7" fill="white" letter-spacing="0.1em">QUESTION</text>
-        <text x="220" y="68" text-anchor="middle" font-family="Inter" font-size="6" fill="#999">your input</text>
-
-        <!-- Node: Literature (left) -->
-        <circle cx="100" cy="220" r="36" fill="white" stroke="#d5d4d0" stroke-width="1"/>
-        <circle cx="100" cy="220" r="36" fill="url(#g1)" opacity="0.2"/>
-        <!-- Stacked pages icon -->
-        <rect x="86" y="208" width="16" height="20" rx="2" fill="none" stroke="#999" stroke-width="0.8"/>
-        <rect x="89" y="205" width="16" height="20" rx="2" fill="none" stroke="#bbb" stroke-width="0.6"/>
-        <rect x="92" y="202" width="16" height="20" rx="2" fill="white" stroke="#999" stroke-width="0.8"/>
-        <line x1="95" y1="208" x2="105" y2="208" stroke="#ccc" stroke-width="0.6"/>
-        <line x1="95" y1="211" x2="103" y2="211" stroke="#ccc" stroke-width="0.6"/>
-        <line x1="95" y1="214" x2="106" y2="214" stroke="#ccc" stroke-width="0.6"/>
-        <text x="100" y="235" text-anchor="middle" font-family="Inter" font-size="7" fill="#6b7280">Literature</text>
-
-        <!-- Node: Hypotheses (right) -->
-        <circle cx="340" cy="220" r="36" fill="white" stroke="#d5d4d0" stroke-width="1"/>
-        <circle cx="340" cy="220" r="36" fill="url(#g1)" opacity="0.2"/>
-        <!-- Branching icon -->
-        <circle cx="340" cy="207" r="3.5" fill="none" stroke="#4dab9a" stroke-width="1"/>
-        <circle cx="328" cy="220" r="3" fill="none" stroke="#4dab9a" stroke-width="1"/>
-        <circle cx="340" cy="220" r="3" fill="none" stroke="#e5a030" stroke-width="1"/>
-        <circle cx="352" cy="220" r="3" fill="none" stroke="#eb5757" stroke-width="1"/>
-        <line x1="340" y1="210" x2="328" y2="217" stroke="#d5d4d0" stroke-width="0.6"/>
-        <line x1="340" y1="210" x2="340" y2="217" stroke="#d5d4d0" stroke-width="0.6"/>
-        <line x1="340" y1="210" x2="352" y2="217" stroke="#d5d4d0" stroke-width="0.6"/>
-        <text x="340" y="238" text-anchor="middle" font-family="Inter" font-size="7" fill="#6b7280">Hypotheses</text>
-
-        <!-- Node: Paper (bottom) — second largest, with weight -->
-        <circle cx="220" cy="380" r="32" fill="white" stroke="#1a1a1a" stroke-width="1.5"/>
-        <!-- Document icon inside -->
-        <rect x="207" y="366" width="18" height="24" rx="2" fill="none" stroke="#1a1a1a" stroke-width="1"/>
-        <line x1="211" y1="373" x2="221" y2="373" stroke="#1a1a1a" stroke-width="0.6"/>
-        <line x1="211" y1="377" x2="219" y2="377" stroke="#1a1a1a" stroke-width="0.6"/>
-        <line x1="211" y1="381" x2="221" y2="381" stroke="#1a1a1a" stroke-width="0.6"/>
-        <line x1="211" y1="385" x2="216" y2="385" stroke="#1a1a1a" stroke-width="0.6"/>
-        <text x="220" y="402" text-anchor="middle" font-family="Source Serif 4, Georgia" font-size="8" fill="#1a1a1a" font-weight="600">Paper</text>
-
-        <!-- Subtle glow on the question node -->
-        <circle cx="220" cy="60" r="40" fill="none" stroke="#1a1a1a" stroke-width="0.3" opacity="0.15"/>
-        <circle cx="220" cy="60" r="50" fill="none" stroke="#1a1a1a" stroke-width="0.2" opacity="0.08"/>
-
-        <!-- Subtle glow on the paper node -->
-        <circle cx="220" cy="380" r="44" fill="none" stroke="#1a1a1a" stroke-width="0.3" opacity="0.12"/>
-      </svg>
+      <canvas id="viz" width="700" height="500" style="width:100%;max-width:560px;"></canvas>
     </div>
   </div>
 </section>
-
-<!-- Pipeline detail -->
 <section class="border-t border-[#e5e5e5]/60 bg-[#f7f6f3]">
   <div class="mx-auto max-w-5xl px-6 py-20">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
-      <div>
-        <h2 class="font-display text-[28px] font-semibold tracking-tight">Four stages.<br>Fully automated.</h2>
-        <p class="mt-3 text-[15px] text-[#6b7280] leading-relaxed">Each step feeds the next. Literature informs hypotheses. Hypotheses drive experiments. Experiments shape the paper.</p>
-
-        <div class="mt-10 space-y-6">
-          <div class="flex gap-4">
-            <div class="flex-shrink-0 h-8 w-8 rounded-full bg-[#1a1a1a] text-white flex items-center justify-center text-sm font-semibold">1</div>
-            <div>
-              <h3 class="text-[15px] font-semibold">Describe your question</h3>
-              <p class="text-[13px] text-[#6b7280] mt-1 leading-relaxed">Plain English. One sentence is enough. Upload an existing draft if you want.</p>
-            </div>
-          </div>
-          <div class="flex gap-4">
-            <div class="flex-shrink-0 h-8 w-8 rounded-full bg-[#1a1a1a] text-white flex items-center justify-center text-sm font-semibold">2</div>
-            <div>
-              <h3 class="text-[15px] font-semibold">Literature is searched</h3>
-              <p class="text-[13px] text-[#6b7280] mt-1 leading-relaxed">arXiv, Semantic Scholar, DOAJ, OpenAlex — queried in parallel. Papers are downloaded, full-text indexed, and linked to your project.</p>
-            </div>
-          </div>
-          <div class="flex gap-4">
-            <div class="flex-shrink-0 h-8 w-8 rounded-full bg-[#1a1a1a] text-white flex items-center justify-center text-sm font-semibold">3</div>
-            <div>
-              <h3 class="text-[15px] font-semibold">Hypotheses are tested</h3>
-              <p class="text-[13px] text-[#6b7280] mt-1 leading-relaxed">AI proposes testable claims from the literature, writes Python experiments, runs them, and evaluates the results.</p>
-            </div>
-          </div>
-          <div class="flex gap-4">
-            <div class="flex-shrink-0 h-8 w-8 rounded-full bg-[#1a1a1a] text-white flex items-center justify-center text-sm font-semibold">4</div>
-            <div>
-              <h3 class="text-[15px] font-semibold">Paper is compiled</h3>
-              <p class="text-[13px] text-[#6b7280] mt-1 leading-relaxed">LaTeX manuscript with \cite{} references, full bibliography, and structured sections. Export and compile anywhere.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Knowledge graph — organic, constellation-style -->
-      <div class="flex justify-center items-center">
-        <svg viewBox="0 0 360 400" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full max-w-[360px]">
-          <defs>
-            <radialGradient id="kg-glow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#4dab9a" stop-opacity="0.08"/>
-              <stop offset="100%" stop-color="#4dab9a" stop-opacity="0"/>
-            </radialGradient>
-          </defs>
-
-          <!-- Ambient glow -->
-          <circle cx="180" cy="200" r="180" fill="url(#kg-glow)"/>
-
-          <!-- Curved connections — organic, not grid-like -->
-          <path d="M180 40 C120 80 70 130 75 175" stroke="#d5d4d0" stroke-width="0.8" fill="none"/>
-          <path d="M180 40 C180 90 180 120 180 165" stroke="#d5d4d0" stroke-width="0.8" fill="none"/>
-          <path d="M180 40 C240 80 290 130 285 175" stroke="#d5d4d0" stroke-width="0.8" fill="none"/>
-
-          <path d="M75 195 C90 240 110 270 130 290" stroke="#d5d4d0" stroke-width="0.7" fill="none"/>
-          <path d="M75 195 C120 220 150 250 175 290" stroke="#d5d4d0" stroke-width="0.5" fill="none" stroke-dasharray="2 3"/>
-          <path d="M180 195 C170 240 160 270 155 290" stroke="#d5d4d0" stroke-width="0.7" fill="none"/>
-          <path d="M180 195 C200 240 210 270 205 290" stroke="#d5d4d0" stroke-width="0.5" fill="none" stroke-dasharray="2 3"/>
-          <path d="M285 195 C270 240 250 270 230 290" stroke="#d5d4d0" stroke-width="0.7" fill="none"/>
-          <path d="M285 195 C260 230 220 260 195 290" stroke="#d5d4d0" stroke-width="0.5" fill="none" stroke-dasharray="2 3"/>
-
-          <path d="M130 310 C150 340 165 355 180 365" stroke="#d5d4d0" stroke-width="0.8" fill="none"/>
-          <path d="M170 310 C175 340 178 355 180 365" stroke="#d5d4d0" stroke-width="0.6" fill="none"/>
-          <path d="M210 310 C200 340 190 355 180 365" stroke="#d5d4d0" stroke-width="0.6" fill="none"/>
-          <path d="M240 310 C220 340 200 355 180 365" stroke="#d5d4d0" stroke-width="0.8" fill="none"/>
-
-          <!-- Dust particles -->
-          <circle cx="40" cy="100" r="1.5" fill="#e5e5e5"/>
-          <circle cx="320" cy="110" r="1.5" fill="#e5e5e5"/>
-          <circle cx="50" cy="250" r="1" fill="#e5e5e5"/>
-          <circle cx="310" cy="260" r="1.5" fill="#e5e5e5"/>
-          <circle cx="130" cy="80" r="1" fill="#e5e5e5"/>
-          <circle cx="240" cy="85" r="1" fill="#e5e5e5"/>
-          <circle cx="100" cy="340" r="1" fill="#e5e5e5"/>
-          <circle cx="270" cy="340" r="1" fill="#e5e5e5"/>
-          <circle cx="55" cy="220" r="1" fill="#e5e5e5"/>
-          <circle cx="305" cy="230" r="1" fill="#e5e5e5"/>
-
-          <!-- Node: Question — solid, grounding -->
-          <circle cx="180" cy="40" r="22" fill="#1a1a1a"/>
-          <circle cx="180" cy="40" r="30" fill="none" stroke="#1a1a1a" stroke-width="0.3" opacity="0.2"/>
-          <text x="180" y="43" text-anchor="middle" font-family="Inter" font-size="8" fill="white" font-weight="500">?</text>
-
-          <!-- Nodes: Literature — airy, open -->
-          <circle cx="75" cy="185" r="20" fill="white" stroke="#c5c3be" stroke-width="0.8"/>
-          <circle cx="180" cy="180" r="18" fill="white" stroke="#c5c3be" stroke-width="0.8"/>
-          <circle cx="285" cy="185" r="20" fill="white" stroke="#c5c3be" stroke-width="0.8"/>
-          <!-- Subtle page icon inside each -->
-          <rect x="68" y="179" width="9" height="12" rx="1" fill="none" stroke="#b0ada6" stroke-width="0.6"/>
-          <rect x="80" y="179" width="9" height="12" rx="1" fill="none" stroke="#b0ada6" stroke-width="0.6"/>
-          <rect x="173" y="174" width="9" height="12" rx="1" fill="none" stroke="#b0ada6" stroke-width="0.6"/>
-          <rect x="183" y="174" width="9" height="12" rx="1" fill="none" stroke="#b0ada6" stroke-width="0.6"/>
-          <rect x="278" y="179" width="9" height="12" rx="1" fill="none" stroke="#b0ada6" stroke-width="0.6"/>
-          <rect x="288" y="179" width="9" height="12" rx="1" fill="none" stroke="#b0ada6" stroke-width="0.6"/>
-
-          <!-- Nodes: Hypotheses — colored rings, distinct -->
-          <circle cx="130" cy="300" r="15" fill="white" stroke="#4dab9a" stroke-width="1.5"/>
-          <circle cx="130" cy="300" r="10" fill="#4dab9a" opacity="0.08"/>
-          <circle cx="170" cy="300" r="13" fill="white" stroke="#4dab9a" stroke-width="1.5"/>
-          <circle cx="170" cy="300" r="8" fill="#4dab9a" opacity="0.08"/>
-          <circle cx="210" cy="300" r="14" fill="white" stroke="#e5a030" stroke-width="1.5"/>
-          <circle cx="210" cy="300" r="9" fill="#e5a030" opacity="0.08"/>
-          <circle cx="245" cy="305" r="12" fill="white" stroke="#eb5757" stroke-width="1.5"/>
-          <circle cx="245" cy="305" r="7" fill="#eb5757" opacity="0.08"/>
-
-          <!-- Node: Manuscript — weighted, final -->
-          <circle cx="180" cy="375" r="20" fill="white" stroke="#1a1a1a" stroke-width="1.5"/>
-          <circle cx="180" cy="375" r="27" fill="none" stroke="#1a1a1a" stroke-width="0.3" opacity="0.15"/>
-          <!-- Tiny page lines -->
-          <line x1="173" y1="369" x2="187" y2="369" stroke="#1a1a1a" stroke-width="0.6"/>
-          <line x1="173" y1="373" x2="185" y2="373" stroke="#1a1a1a" stroke-width="0.6"/>
-          <line x1="173" y1="377" x2="187" y2="377" stroke="#1a1a1a" stroke-width="0.6"/>
-          <line x1="173" y1="381" x2="181" y2="381" stroke="#1a1a1a" stroke-width="0.6"/>
-        </svg>
-      </div>
+    <h2 class="font-display text-[28px] font-semibold tracking-tight">Four stages. Fully automated.</h2>
+    <p class="mt-3 text-[15px] text-[#6b7280]">Each step feeds the next. Literature informs hypotheses. Hypotheses drive experiments. Experiments shape the paper.</p>
+    <div class="mt-10 grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div><div class="h-8 w-8 rounded-full bg-[#1a1a1a] text-white flex items-center justify-center text-sm font-semibold mb-3">1</div><h3 class="text-[15px] font-semibold">Describe</h3><p class="text-[13px] text-[#6b7280] mt-1">Write your research question in plain English.</p></div>
+      <div><div class="h-8 w-8 rounded-full bg-[#1a1a1a] text-white flex items-center justify-center text-sm font-semibold mb-3">2</div><h3 class="text-[15px] font-semibold">Discover</h3><p class="text-[13px] text-[#6b7280] mt-1">arXiv, Semantic Scholar, DOAJ, OpenAlex searched in parallel.</p></div>
+      <div><div class="h-8 w-8 rounded-full bg-[#1a1a1a] text-white flex items-center justify-center text-sm font-semibold mb-3">3</div><h3 class="text-[15px] font-semibold">Test</h3><p class="text-[13px] text-[#6b7280] mt-1">AI writes Python experiments, runs them, evaluates results.</p></div>
+      <div><div class="h-8 w-8 rounded-full bg-[#1a1a1a] text-white flex items-center justify-center text-sm font-semibold mb-3">4</div><h3 class="text-[15px] font-semibold">Compile</h3><p class="text-[13px] text-[#6b7280] mt-1">LaTeX manuscript with citations and full bibliography.</p></div>
     </div>
   </div>
 </section>
-
-<!-- What makes it different -->
 <section class="mx-auto max-w-5xl px-6 py-20">
   <h2 class="font-display text-[28px] font-semibold tracking-tight text-center">What other tools don't do</h2>
   <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-0 border border-[#e5e5e5] rounded-lg overflow-hidden bg-white">
-    <div class="p-8 md:border-r border-[#e5e5e5]">
-      <!-- Code execution graphic -->
-      <svg viewBox="0 0 48 48" class="h-10 w-10 mb-4" fill="none">
-        <rect x="4" y="8" width="40" height="32" rx="4" stroke="#1a1a1a" stroke-width="1.5"/>
-        <path d="M14 22l6 4-6 4" stroke="#4dab9a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <line x1="24" y1="30" x2="34" y2="30" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      <h3 class="text-[15px] font-semibold">Real code experiments</h3>
-      <p class="mt-2 text-[13px] text-[#6b7280] leading-relaxed">Not just text generation. Python experiments run in a sandbox — Monte Carlo, statistical tests, sensitivity analysis. With real p-values.</p>
-    </div>
-    <div class="p-8 md:border-r border-[#e5e5e5] border-t md:border-t-0">
-      <!-- Connected pipeline graphic -->
-      <svg viewBox="0 0 48 48" class="h-10 w-10 mb-4" fill="none">
-        <circle cx="12" cy="12" r="6" stroke="#1a1a1a" stroke-width="1.5"/>
-        <circle cx="36" cy="12" r="6" stroke="#1a1a1a" stroke-width="1.5"/>
-        <circle cx="24" cy="36" r="6" stroke="#1a1a1a" stroke-width="1.5"/>
-        <line x1="17" y1="14" x2="31" y2="14" stroke="#d5d4d0" stroke-width="1"/>
-        <line x1="14" y1="17" x2="21" y2="31" stroke="#d5d4d0" stroke-width="1"/>
-        <line x1="34" y1="17" x2="27" y2="31" stroke="#d5d4d0" stroke-width="1"/>
-      </svg>
-      <h3 class="text-[15px] font-semibold">Connected pipeline</h3>
-      <p class="mt-2 text-[13px] text-[#6b7280] leading-relaxed">Literature informs hypotheses. Hypotheses drive experiments. Experiments shape the paper. Each step feeds the next — nothing is disconnected.</p>
-    </div>
-    <div class="p-8 border-t md:border-t-0">
-      <!-- Full paper graphic -->
-      <svg viewBox="0 0 48 48" class="h-10 w-10 mb-4" fill="none">
-        <rect x="8" y="4" width="32" height="40" rx="3" stroke="#1a1a1a" stroke-width="1.5"/>
-        <line x1="14" y1="14" x2="34" y2="14" stroke="#d5d4d0" stroke-width="1"/>
-        <line x1="14" y1="19" x2="30" y2="19" stroke="#d5d4d0" stroke-width="1"/>
-        <line x1="14" y1="24" x2="32" y2="24" stroke="#d5d4d0" stroke-width="1"/>
-        <line x1="14" y1="29" x2="26" y2="29" stroke="#d5d4d0" stroke-width="1"/>
-        <line x1="14" y1="34" x2="34" y2="34" stroke="#d5d4d0" stroke-width="1"/>
-        <line x1="14" y1="39" x2="22" y2="39" stroke="#d5d4d0" stroke-width="1"/>
-        <text x="16" y="12" font-family="Source Serif 4, Georgia" font-size="5" fill="#1a1a1a" font-weight="700">Title</text>
-      </svg>
-      <h3 class="text-[15px] font-semibold">Complete manuscript</h3>
-      <p class="mt-2 text-[13px] text-[#6b7280] leading-relaxed">LaTeX with \cite{} references, structured sections, full bibliography. Not a draft — a paper ready to export and submit.</p>
-    </div>
+    <div class="p-8 md:border-r border-[#e5e5e5]"><h3 class="text-[15px] font-semibold">Real code experiments</h3><p class="mt-2 text-[13px] text-[#6b7280]">Python experiments run in a sandbox. Monte Carlo, statistical tests, sensitivity analysis.</p></div>
+    <div class="p-8 md:border-r border-[#e5e5e5] border-t md:border-t-0"><h3 class="text-[15px] font-semibold">Connected pipeline</h3><p class="mt-2 text-[13px] text-[#6b7280]">Literature informs hypotheses. Hypotheses drive experiments. Each step feeds the next.</p></div>
+    <div class="p-8 border-t md:border-t-0"><h3 class="text-[15px] font-semibold">Complete manuscript</h3><p class="mt-2 text-[13px] text-[#6b7280]">LaTeX with \cite{} references, structured sections, full bibliography.</p></div>
   </div>
 </section>
-
-<!-- CTA -->
 <section class="border-t border-[#e5e5e5]/60 bg-[#f7f6f3]">
   <div class="mx-auto max-w-5xl px-6 py-20 text-center">
     <h2 class="font-display text-[28px] font-semibold tracking-tight">Start with a question.</h2>
     <p class="mt-3 text-[15px] text-[#6b7280]">Free to use. Your research, your data.</p>
-    <div class="mt-8">
-      {% if user.is_authenticated %}
-        <a href="/dashboard/" class="inline-block text-[15px] font-medium text-white bg-[#1a1a1a] rounded-lg px-6 py-3 hover:bg-[#333] transition">Go to dashboard</a>
-      {% else %}
-        <a href="/signup/" class="inline-block text-[15px] font-medium text-white bg-[#1a1a1a] rounded-lg px-6 py-3 hover:bg-[#333] transition">Start researching</a>
-      {% endif %}
-    </div>
+    <div class="mt-8">{% if user.is_authenticated %}<a href="/dashboard/" class="inline-block text-[15px] font-medium text-white bg-[#1a1a1a] rounded-lg px-6 py-3 hover:bg-[#333] transition">Go to dashboard</a>{% else %}<a href="/signup/" class="inline-block text-[15px] font-medium text-white bg-[#1a1a1a] rounded-lg px-6 py-3 hover:bg-[#333] transition">Start researching</a>{% endif %}</div>
   </div>
 </section>
+<script>
+(function(){
+  var c=document.getElementById('viz');if(!c)return;
+  var ctx=c.getContext('2d'),W=700,H=500,t=0;
+  var cols=['#6366f1','#8b5cf6','#3b82f6','#06b6d4','#14b8a6','#22c55e','#f97316','#ef4444','#ec4899','#a855f7','#0ea5e9','#10b981','#eab308'];
+
+  // Shape definitions — each returns target (tx,ty) for a node index
+  // Brain
+  function brainPos(i,total){
+    // Use golden angle spiral to fill the brain shape
+    var golden=2.399963;
+    var theta=i*golden;
+    var r=Math.sqrt(i/total)*0.38;
+    var bx=0.42+r*Math.cos(theta),by=0.42+r*Math.sin(theta)*0.85;
+    // Warp into brain lobes
+    if(bx<0.3)by+=(0.3-bx)*0.3; // frontal droop
+    if(bx>0.6&&by>0.5){bx+=0.04;by+=0.06;} // cerebellum bump
+    if(by>0.7)bx=0.56+(bx-0.56)*0.3; // stem narrow
+    return [bx*W, by*H];
+  }
+  // Lightbulb
+  function bulbPos(i,total){
+    var golden=2.399963,theta=i*golden;
+    if(i/total<0.75){
+      var r=Math.sqrt((i/total)/0.75)*0.28;
+      return [0.5*W+r*W*Math.cos(theta), 0.38*H+r*H*Math.sin(theta)];
+    } else {
+      var p=(i/total-0.75)/0.25;
+      var bw=0.08*(1-p*0.6);
+      return [0.5*W+(Math.sin(p*3.14)*bw*W), (0.68+p*0.2)*H];
+    }
+  }
+  // Document/paper
+  function docPos(i,total){
+    var cols=Math.ceil(Math.sqrt(total*0.7));
+    var rows=Math.ceil(total/cols);
+    var ci=i%cols,ri=Math.floor(i/cols);
+    var margin=0.12;
+    return [
+      (margin+ci/(cols-1)*(1-2*margin))*W,
+      (margin+ri/(rows-1)*(1-2*margin))*H
+    ];
+  }
+  // DNA double helix
+  function dnaPos(i,total){
+    var p=i/total;
+    var y=(0.08+p*0.84)*H;
+    var twist=p*12;
+    var strand=Math.sin(twist)*0.15*W;
+    var side=(i%2===0)?1:-1;
+    return [0.5*W+strand*side, y];
+  }
+  // Scatter/explosion
+  function scatterPos(i,total){
+    var golden=2.399963,theta=i*golden;
+    var r=Math.sqrt(i/total)*0.45;
+    return [0.5*W+r*W*Math.cos(theta), 0.5*H+r*H*Math.sin(theta)];
+  }
+
+  var shapes=[brainPos, bulbPos, docPos, dnaPos, scatterPos];
+  var shapeNames=['brain','lightbulb','document','dna','network'];
+  var currentShape=0, morphProgress=1, morphSpeed=0.008;
+  var SHAPE_HOLD=600; // frames to hold each shape
+  var shapeTimer=0;
+
+  // Generate nodes at brain positions initially
+  var NODE_COUNT=1400;
+  var nodes=[];
+  for(var i=0;i<NODE_COUNT;i++){
+    var pos=brainPos(i,NODE_COUNT);
+    nodes.push({
+      x:pos[0],y:pos[1],
+      tx:pos[0],ty:pos[1], // target
+      r:0.8+Math.random()*1.6,
+      col:cols[Math.floor(Math.random()*cols.length)],
+      ph:Math.random()*6.28
+    });
+  }
+  var N=nodes.length;
+
+  // Precompute edges
+  var edges=[];
+  for(var i=0;i<N;i++){
+    var ec=0;
+    for(var j=i+1;j<N&&ec<3;j++){
+      var dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d2=dx*dx+dy*dy;
+      if(d2<484){edges.push([i,j,Math.sqrt(d2)]);ec++;}
+    }
+  }
+
+  // Packets
+  var pkts=[];
+  for(var i=0;i<30;i++)pkts.push({e:Math.floor(Math.random()*edges.length),p:Math.random(),s:0.004+Math.random()*0.008,f:Math.random()>0.5,c:cols[Math.floor(Math.random()*cols.length)]});
+
+  // Mouse
+  var mx=-9e3,my=-9e3;
+  c.onmousemove=function(e){var r=c.getBoundingClientRect();mx=(e.clientX-r.left)*(W/r.width);my=(e.clientY-r.top)*(H/r.height);};
+  c.onmouseleave=function(){mx=-9e3;my=-9e3;};
+
+  ctx.fillStyle='#fcfbf9';ctx.fillRect(0,0,W,H);
+
+  function frame(){
+    ctx.fillStyle='rgba(252,251,249,0.065)';ctx.fillRect(0,0,W,H);
+    if(t%600===0){ctx.fillStyle='#fcfbf9';ctx.fillRect(0,0,W,H);}
+
+    // Shape morphing
+    shapeTimer++;
+    if(shapeTimer>SHAPE_HOLD&&morphProgress>=1){
+      // Start morph to next shape
+      currentShape=(currentShape+1)%shapes.length;
+      var shapeFn=shapes[currentShape];
+      for(var i=0;i<N;i++){
+        var p=shapeFn(i,N);
+        nodes[i].tx=p[0];nodes[i].ty=p[1];
+      }
+      morphProgress=0;
+      shapeTimer=0;
+    }
+    if(morphProgress<1){
+      morphProgress=Math.min(1,morphProgress+morphSpeed);
+      // Ease in-out
+      var ease=morphProgress<0.5?2*morphProgress*morphProgress:1-Math.pow(-2*morphProgress+2,2)/2;
+      for(var i=0;i<N;i++){
+        var n=nodes[i];
+        n.x+=(n.tx-n.x)*ease*0.06;
+        n.y+=(n.ty-n.y)*ease*0.06;
+      }
+    }
+
+    // Drift + mouse
+    for(var i=0;i<N;i++){
+      var n=nodes[i];
+      n.x+=Math.sin(t*0.002+n.ph)*0.04;
+      n.y+=Math.cos(t*0.0015+n.ph*1.3)*0.03;
+      var dx=n.x-mx,dy=n.y-my,d2=dx*dx+dy*dy;
+      if(d2<5000&&d2>1){n.x+=dx*0.15/d2;n.y+=dy*0.15/d2;}
+    }
+
+    // Edges
+    ctx.lineWidth=0.25;
+    for(var i=0;i<edges.length;i++){
+      var e=edges[i],a=nodes[e[0]],b=nodes[e[1]];
+      var al=(1-e[2]/22)*0.1;
+      ctx.strokeStyle='rgba(99,102,241,'+al+')';
+      ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+    }
+
+    // Packets
+    for(var i=0;i<pkts.length;i++){
+      var p=pkts[i];
+      p.p+=p.s*(p.f?1:-1);
+      if(p.p>1||p.p<0){p.e=Math.floor(Math.random()*edges.length);p.p=p.f?0:1;p.f=Math.random()>0.5;p.c=cols[Math.floor(Math.random()*cols.length)];}
+      var e=edges[p.e],a=nodes[e[0]],b=nodes[e[1]];
+      var px=a.x+(b.x-a.x)*p.p,py=a.y+(b.y-a.y)*p.p;
+      ctx.fillStyle=p.c;ctx.globalAlpha=0.75;
+      ctx.beginPath();ctx.arc(px,py,1.3,0,6.28);ctx.fill();ctx.globalAlpha=1;
+    }
+
+    // Nodes
+    for(var i=0;i<N;i++){
+      var n=nodes[i],pulse=1+Math.sin(t*0.008+n.ph)*0.2,r=n.r*pulse;
+      var dx=n.x-mx,dy=n.y-my,md=Math.sqrt(dx*dx+dy*dy);
+      var boost=md<70?(1-md/70):0;
+      if(r>1.2||boost>0){
+        var g=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,r*(2.5+boost*2));
+        g.addColorStop(0,n.col+(boost>0?'28':'0c'));g.addColorStop(1,n.col+'00');
+        ctx.fillStyle=g;ctx.beginPath();ctx.arc(n.x,n.y,r*(2.5+boost*2),0,6.28);ctx.fill();
+      }
+      ctx.fillStyle=n.col;ctx.beginPath();ctx.arc(n.x,n.y,r,0,6.28);ctx.fill();
+    }
+
+    // Waves
+    for(var w=0;w<5;w++){
+      var per=200,off=w*40,age=(t+off)%per;
+      if(age<70){
+        var oi=(Math.floor((t+off)/per)*31+w*17)%N,o=nodes[oi],wr=age*2.8;
+        ctx.beginPath();ctx.arc(o.x,o.y,wr,0,6.28);
+        ctx.strokeStyle='rgba(99,102,241,'+(1-age/70)*0.05+')';ctx.lineWidth=0.7;ctx.stroke();
+      }
+    }
+    t++;requestAnimationFrame(frame);
+  }
+  frame();
+})();
+</script>
 {% endblock %}

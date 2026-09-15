@@ -17,7 +17,7 @@ class HypothesisAnswer(BaseModel):
 
 answer_agent = Agent(
     name="hypothesis_answer",
-    model="gpt-5",
+    model="gpt-4o-mini",
     model_settings=ModelSettings(
         reasoning={
             "effort": "medium"

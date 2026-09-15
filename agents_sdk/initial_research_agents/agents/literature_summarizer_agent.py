@@ -24,7 +24,7 @@ class ProjectFocusedSummary(BaseModel):
 
 literature_summarizer_agent = Agent(
     name="literature_summarizer",
-    model="gpt-5",
+    model="gpt-4o-mini",
     model_settings=ModelSettings(
         reasoning={
             "effort": "high"

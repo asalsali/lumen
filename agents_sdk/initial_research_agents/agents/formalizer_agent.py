@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pydantic import BaseModel, Field
-from agents import Agent, ModelSettings
+from agents import Agent
 
 
 FORMALIZER_INSTRUCTIONS = """
@@ -17,14 +17,7 @@ class FormalizedAsk(BaseModel):
 
 formalizer_agent = Agent(
     name="formalizer",
-    model="gpt-5",
-    model_settings=ModelSettings(
-        reasoning={
-            "effort": "medium"
-        }
-    ),
+    model="gpt-4o-mini",
     instructions=FORMALIZER_INSTRUCTIONS,
     output_type=FormalizedAsk,
 )
-
-
