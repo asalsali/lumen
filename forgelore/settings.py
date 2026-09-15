@@ -128,7 +128,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Allow ngrok for dev tunneling
-CSRF_TRUSTED_ORIGINS = [origin for origin in os.getenv('CSRF_TRUSTED_ORIGINS', 'https://*.ngrok-free.app,https://*.ngrok.io,https://*.ngrok-free.dev').split(',') if origin]
+CSRF_TRUSTED_ORIGINS = [origin for origin in os.getenv('CSRF_TRUSTED_ORIGINS', 'https://*.ngrok-free.app,https://*.ngrok.io,https://*.ngrok-free.dev,https://*.onrender.com').split(',') if origin]
 
 # Auth redirects
 LOGIN_URL = '/login/'
