@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pydantic import BaseModel, Field
-from agents import Agent, ModelSettings
+from agents import Agent
 
 from ...initial_research_agents.tools import (
     literature_search,
@@ -78,11 +78,7 @@ class ChatAssistantReply(BaseModel):
 chat_agent = Agent(
     name="project_assistant",
     model="gpt-4o-mini",
-    model_settings=ModelSettings(
-        reasoning={"effort": "medium"},
-        verbosity="medium",
-    ),
-    instructions=CHAT_ASSISTANT_INSTRUCTIONS,
+        instructions=CHAT_ASSISTANT_INSTRUCTIONS,
     tools=[
         literature_search,
         list_literature,

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pydantic import BaseModel, Field
-from agents import Agent, ModelSettings
+from agents import Agent
 
 from ...initial_research_agents.tools import list_literature, read_literature, list_hypotheses, get_paper
 
@@ -25,12 +25,7 @@ class DraftSections(BaseModel):
 drafting_agent = Agent(
     name="initial_drafting",
     model="gpt-4o-mini",
-    model_settings=ModelSettings(
-        reasoning={
-            "effort": "high"
-        }
-    ),
-    instructions=DRAFTING_INSTRUCTIONS,
+        instructions=DRAFTING_INSTRUCTIONS,
     tools=[list_literature, read_literature, list_hypotheses, get_paper],
     output_type=DraftSections,
 )

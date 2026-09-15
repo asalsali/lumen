@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List
 from pydantic import BaseModel, Field
-from agents import Agent, ModelSettings
+from agents import Agent
 
 from ..tools import (
     list_experiments,
@@ -39,12 +39,7 @@ class HypothesesOutput(BaseModel):
 hypothesizer_agent = Agent(
     name="hypothesizer",
     model="gpt-4o-mini",
-    model_settings=ModelSettings(
-        reasoning={
-            "effort": "high"
-        }
-    ),
-    instructions=HYPOTHESIZER_INSTRUCTIONS,
+        instructions=HYPOTHESIZER_INSTRUCTIONS,
     tools=[list_experiments, list_literature, create_hypothesis, update_hypothesis_status],
     output_type=HypothesesOutput,
 )

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List
 from pydantic import BaseModel, Field
-from agents import Agent, ModelSettings
+from agents import Agent
 
 from ..tools import literature_search, link_literature
 
@@ -44,12 +44,7 @@ class LiteratureReviewOutcome(BaseModel):
 literature_reviewer_agent = Agent(
     name="literature_reviewer",
     model="gpt-4o-mini",
-    model_settings=ModelSettings(
-        reasoning={
-            "effort": "high"
-        }
-    ),
-    instructions=REVIEWER_INSTRUCTIONS,
+        instructions=REVIEWER_INSTRUCTIONS,
     tools=[literature_search, link_literature],
     output_type=LiteratureReviewOutcome,
 )

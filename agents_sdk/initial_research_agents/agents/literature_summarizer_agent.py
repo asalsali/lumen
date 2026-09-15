@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List
 from pydantic import BaseModel, Field
-from agents import Agent, ModelSettings
+from agents import Agent
 
 from ..tools import list_literature, read_literature, deep_read_literature, search_within_literature
 
@@ -25,12 +25,7 @@ class ProjectFocusedSummary(BaseModel):
 literature_summarizer_agent = Agent(
     name="literature_summarizer",
     model="gpt-4o-mini",
-    model_settings=ModelSettings(
-        reasoning={
-            "effort": "high"
-        }
-    ),
-    instructions=SUMMARIZER_INSTRUCTIONS,
+        instructions=SUMMARIZER_INSTRUCTIONS,
     tools=[list_literature, read_literature, deep_read_literature, search_within_literature],
     output_type=ProjectFocusedSummary,
 )

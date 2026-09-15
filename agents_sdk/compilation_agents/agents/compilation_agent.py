@@ -77,12 +77,7 @@ class FullLatexPaper(BaseModel):
 compilation_agent = Agent(
     name="paper_compilation",
     model="gpt-4o",
-    model_settings=ModelSettings(
-        reasoning={
-            "effort": "high"
-        },
-        verbosity="high"
-    ),
+    model_settings=ModelSettings(),
     instructions=COMPILATION_INSTRUCTIONS,
     tools=[get_paper, list_literature, list_hypotheses, deep_read_literature],
     output_type=FullLatexPaper,

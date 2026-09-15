@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pydantic import BaseModel, Field
-from agents import Agent, ModelSettings
+from agents import Agent
 
 
 SIM_DECIDER_INSTRUCTIONS = """
@@ -18,12 +18,7 @@ class SimulationDecision(BaseModel):
 sim_decider_agent = Agent(
     name="simulation_decider",
     model="gpt-4o-mini",
-    model_settings=ModelSettings(
-        reasoning={
-            "effort": "low"
-        }
-    ),
-    instructions=SIM_DECIDER_INSTRUCTIONS,
+        instructions=SIM_DECIDER_INSTRUCTIONS,
     output_type=SimulationDecision,
 )
 
